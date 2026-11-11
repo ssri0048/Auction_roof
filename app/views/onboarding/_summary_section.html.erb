@@ -1,0 +1,7 @@
+<section class="summary__section">
+  <header>
+    <h2><%= onboarding_step_label(step) %></h2>
+    <% if edit_links %><%= link_to "แก้ไข", onboarding_step_path(step) %><% end %>
+  </header>
+  <%= yield %>
+</section>

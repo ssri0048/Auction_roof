@@ -1,5 +1,16 @@
 # Choices offered in the onboarding steps, as { stored value => Thai label }.
 module OnboardingOptions
+  STEP_LABELS = {
+    "profile" => "ข้อมูลส่วนตัว",
+    "finance" => "อาชีพและรายได้",
+    "address" => "ที่อยู่",
+    "documents" => "เอกสารยืนยันตัวตน",
+    "bank" => "บัญชีรับเงินคืน",
+    "interests" => "ความสนใจ",
+    "consents" => "ข้อตกลงและความยินยอม",
+    "review" => "ตรวจสอบและยืนยัน"
+  }.freeze
+
   OCCUPATIONS = {
     "employee" => "พนักงานบริษัท",
     "government" => "ข้าราชการ / รัฐวิสาหกิจ",

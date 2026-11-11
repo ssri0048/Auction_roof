@@ -1,0 +1,92 @@
+<%# Read-only summary of a user's onboarding. Locals: user, edit_links (true on the user's own review step) %>
+<% profile = user.profile %>
+<% option = ->(list, value) { value.present? ? list.fetch(value, value) : "–" } %>
+<% section = ->(step, &block) { render layout: "onboarding/summary_section", locals: { step: step, edit_links: edit_links }, &block } %>
+
+<div class="summary">
+  <%= section.call("profile") do %>
+    <dl>
+      <dt>ประเภทผู้ประมูล</dt><dd><%= { "individual" => "บุคคลธรรมดา", "juristic" => "นิติบุคคล" }.fetch(user.bidder_type.to_s, "–") %></dd>
+      <dt>ชื่อบัญชีผู้ใช้</dt><dd><%= user.full_name %></dd>
+      <dt>อีเมล / โทร</dt><dd><%= user.email_address %> · <%= user.phone %></dd>
+      <% if user.individual? && profile %>
+        <dt>ชื่อ-นามสกุล</dt><dd><%= option.(UserProfile::TITLES, profile.title) %> <%= user.full_name %><%= " (#{profile.first_name_en} #{profile.last_name_en})" if profile.first_name_en %></dd>
+        <dt>เลขบัตรประชาชน</dt><dd><%= profile.masked_national_id || "–" %></dd>
+        <dt>วันเกิด</dt><dd><%= profile.date_of_birth&.strftime("%d/%m/%Y") || "–" %></dd>
+      <% elsif user.juristic? && profile %>
+        <dt>นิติบุคคล</dt><dd><%= profile.company_name_th %> (<%= option.(UserProfile::COMPANY_TYPES, profile.company_type) %>)</dd>
+        <dt>เลขผู้เสียภาษี</dt><dd><%= profile.masked_tax_id || "–" %></dd>
+        <dt>VAT</dt><dd><%= profile.vat_registered? ? "จดทะเบียน · สาขา #{profile.vat_branch_code}" : "ไม่ได้จดทะเบียน" %></dd>
+        <dt>ผู้มีอำนาจลงนาม</dt><dd><%= profile.authorized_person_name %> · <%= profile.authorized_person_position %> · <%= profile.masked_authorized_person_national_id %></dd>
+      <% end %>
+    </dl>
+  <% end %>
+
+  <% if profile %>
+    <%= section.call("finance") do %>
+      <dl>
+        <% if user.individual? %>
+          <dt>อาชีพ</dt><dd><%= profile.occupation == "other" ? profile.occupation_other : option.(OnboardingOptions::OCCUPATIONS, profile.occupation) %><%= " · #{profile.employer}" if profile.employer %></dd>
+          <dt>รายได้ต่อเดือน</dt><dd><%= option.(OnboardingOptions::INCOME_RANGES, profile.income_range) %></dd>
+        <% else %>
+          <dt>รายได้ต่อปี</dt><dd><%= option.(OnboardingOptions::REVENUE_RANGES, profile.revenue_range) %></dd>
+        <% end %>
+        <dt>ประเภทธุรกิจ</dt><dd><%= option.(OnboardingOptions::INDUSTRIES, profile.industry) %></dd>
+        <dt>แหล่งที่มาของเงิน</dt><dd><%= profile.source_of_funds.map { OnboardingOptions::SOURCES_OF_FUNDS.fetch(it, it) }.join(", ").presence || "–" %></dd>
+        <dt>วัตถุประสงค์ / งบประมาณ</dt><dd><%= option.(OnboardingOptions::PURPOSES, profile.purpose) %> · <%= option.(OnboardingOptions::BUDGET_RANGES, profile.budget_range) %></dd>
+        <dt>PEP</dt><dd><%= { true => "ใช่", false => "ไม่ใช่" }.fetch(profile.is_pep, "–") %></dd>
+      </dl>
+    <% end %>
+  <% end %>
+
+  <%= section.call("address") do %>
+    <% registered = user.addresses.find(&:registered?) %>
+    <dl>
+      <dt>ตามทะเบียน</dt><dd><%= registered || "–" %></dd>
+      <dt>ติดต่อ</dt><dd><%= user.addresses.find(&:contact?) || "เหมือนที่อยู่ตามทะเบียน" %></dd>
+      <dt>ใบกำกับภาษี</dt><dd><%= user.addresses.find(&:tax_invoice?) || "เหมือนที่อยู่ตามทะเบียน" %></dd>
+    </dl>
+  <% end %>
+
+  <% if profile %>
+    <%= section.call("documents") do %>
+      <ul class="summary__docs">
+        <% profile.identity_documents.each do |name, attachment| %>
+          <li><%= link_to UserProfile.human_attribute_name(name), rails_blob_path(attachment, disposition: "inline"), target: "_blank", rel: "noopener" %></li>
+        <% end %>
+        <% profile.supporting_documents.each do |file| %>
+          <li><%= link_to "เอกสารเพิ่มเติม: #{file.filename}", rails_blob_path(file, disposition: "inline"), target: "_blank", rel: "noopener" %></li>
+        <% end %>
+        <% if profile.identity_documents.empty? %><li>–</li><% end %>
+      </ul>
+    <% end %>
+  <% end %>
+
+  <%= section.call("bank") do %>
+    <% account = user.bank_accounts.first %>
+    <dl>
+      <% if account %>
+        <dt>บัญชี</dt><dd><%= account.bank_name %> · <%= account.masked_account_number %><%= " · สาขา #{account.branch}" if account.branch %></dd>
+        <dt>ชื่อบัญชี</dt><dd><%= account.account_name %></dd>
+      <% else %>
+        <dt>บัญชี</dt><dd>–</dd>
+      <% end %>
+    </dl>
+  <% end %>
+
+  <%= section.call("interests") do %>
+    <% interest = user.interest %>
+    <dl>
+      <dt>หมวดที่สนใจ</dt><dd><%= interest&.categories&.map { OnboardingOptions::ASSET_CATEGORIES.fetch(it, it) }&.join(", ").presence || "–" %></dd>
+      <dt>แจ้งเตือนทาง</dt><dd><%= interest&.notify_channels&.map { OnboardingOptions::NOTIFY_CHANNELS.fetch(it, it) }&.join(", ").presence || "–" %></dd>
+    </dl>
+  <% end %>
+
+  <%= section.call("consents") do %>
+    <ul class="summary__docs">
+      <% user.consents.active.select(&:current?).each do |consent| %>
+        <li>✓ <%= Consent::DOCUMENTS[consent.kind][:title] %> <small>(<%= consent.accepted_at.strftime("%d/%m/%Y %H:%M") %>)</small></li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

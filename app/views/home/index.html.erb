@@ -9,7 +9,7 @@
       <div class="container landing-flash"><%= render "layouts/flash" %></div>
     <% end %>
 
-    <% if Current.user&.onboarding_pending? %>
+    <% if Current.user&.onboarding_required? && !Current.user.onboarding_approved? %>
       <div class="container landing-flash"><%= render "onboarding/banner" %></div>
     <% end %>
 

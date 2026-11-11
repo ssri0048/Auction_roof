@@ -55,11 +55,15 @@ class OnboardingControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "home shows the banner only while onboarding is pending" do
+  test "home shows the onboarding status until the user is approved" do
     get root_path
     assert_select ".onboarding-banner", /กรอกข้อมูลให้ครบเพื่อเริ่มประมูล/
 
     @bidder.update!(onboarding_status: :submitted)
+    get root_path
+    assert_select ".onboarding-banner", /อยู่ระหว่างตรวจสอบ/
+
+    @bidder.update!(onboarding_status: :approved)
     get root_path
     assert_select ".onboarding-banner", false
   end

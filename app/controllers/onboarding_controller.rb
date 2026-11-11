@@ -15,6 +15,7 @@ class OnboardingController < ApplicationController
   include Onboarding::DocumentsStep
   include Onboarding::BankStep
   include Onboarding::InterestsStep
+  include Onboarding::ReviewStep
 
   layout "site"
 
@@ -38,6 +39,8 @@ class OnboardingController < ApplicationController
 
     if params[:back]
       redirect_to onboarding_step_path(adjacent_step(-1))
+    elsif saved && @step == User::ONBOARDING_STEPS.last
+      redirect_to root_path, notice: "ส่งข้อมูลเรียบร้อยแล้ว เจ้าหน้าที่จะแจ้งผลภายใน 1–2 วันทำการ"
     elsif saved
       Current.user.complete_onboarding_step!(@step)
       redirect_to onboarding_step_path(adjacent_step(1))

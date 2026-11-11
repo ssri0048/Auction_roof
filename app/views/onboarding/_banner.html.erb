@@ -1,11 +1,19 @@
-<% if Current.user&.onboarding_pending? %>
-  <div class="onboarding-banner">
-    <% if Current.user.onboarding_needs_changes? %>
-      <span>เจ้าหน้าที่ขอให้แก้ไขข้อมูลบางส่วนก่อนเริ่มประมูล</span>
-      <%= link_to "แก้ไขข้อมูล", onboarding_path, class: "btn btn-small" %>
-    <% else %>
+<% user = Current.user %>
+<% if user&.onboarding_required? && !user.onboarding_approved? %>
+  <div class="onboarding-banner onboarding-banner--<%= user.onboarding_status.dasherize %>">
+    <% case user.onboarding_status %>
+    <% when "in_progress" %>
       <span>กรอกข้อมูลให้ครบเพื่อเริ่มประมูล</span>
       <%= link_to "กรอกข้อมูล", onboarding_path, class: "btn btn-small" %>
+    <% when "needs_changes" %>
+      <span>เจ้าหน้าที่ขอให้แก้ไขข้อมูลบางส่วนก่อนเริ่มประมูล</span>
+      <%= link_to "แก้ไขข้อมูล", onboarding_path, class: "btn btn-small" %>
+    <% when "submitted" %>
+      <span>ส่งข้อมูลแล้ว อยู่ระหว่างตรวจสอบ (1–2 วันทำการ)</span>
+    <% when "rejected" %>
+      <span>บัญชีของคุณไม่ผ่านการยืนยันตัวตน ยังดูรายการประมูลได้แต่เสนอราคาไม่ได้</span>
+    <% when "suspended" %>
+      <span>บัญชีของคุณถูกระงับการประมูล กรุณาติดต่อเจ้าหน้าที่</span>
     <% end %>
   </div>
 <% end %>

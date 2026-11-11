@@ -21,7 +21,9 @@
       <% if @step_index > 0 %>
         <%= form.button "ย้อนกลับ", name: "back", value: "1", class: "btn btn-ghost", formnovalidate: true %>
       <% end %>
-      <% unless @step == User::ONBOARDING_STEPS.last %>
+      <% if @step == User::ONBOARDING_STEPS.last %>
+        <%= form.button "ยืนยันและส่งข้อมูล", class: "btn" %>
+      <% else %>
         <span class="onboarding__next">
           <% if skippable_step? %>
             <%= form.button "ข้าม", name: "skip", value: "1", class: "btn btn-ghost", formnovalidate: true %>

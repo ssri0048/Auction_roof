@@ -1,5 +1,5 @@
 class Notification < ApplicationRecord
-  KINDS = %w[ outbid ending_soon won sold unsold ].freeze
+  KINDS = %w[ outbid ending_soon won sold unsold onboarding ].freeze
 
   belongs_to :user
   belongs_to :auction, optional: true

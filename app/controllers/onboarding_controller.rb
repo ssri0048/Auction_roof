@@ -7,11 +7,14 @@
 # form) and `save_<step>_step` (returns true when saved). Steps without them have
 # nothing to save yet.
 class OnboardingController < ApplicationController
+  # Steps the user may skip without filling anything in.
+  SKIPPABLE_STEPS = %w[ interests ].freeze
   include Onboarding::ProfileStep
   include Onboarding::FinanceStep
   include Onboarding::AddressStep
   include Onboarding::DocumentsStep
   include Onboarding::BankStep
+  include Onboarding::InterestsStep
 
   layout "site"
 
@@ -27,7 +30,11 @@ class OnboardingController < ApplicationController
   end
 
   def update
-    saved = params[:back] && params[:onboarding].blank? ? false : run_step_hook(:save, default: true)
+    saved =
+      if params[:skip] && @step.in?(SKIPPABLE_STEPS) then true
+      elsif params[:back] && params[:onboarding].blank? then false
+      else run_step_hook(:save, default: true)
+      end
 
     if params[:back]
       redirect_to onboarding_step_path(adjacent_step(-1))
@@ -39,7 +46,13 @@ class OnboardingController < ApplicationController
     end
   end
 
+  helper_method :skippable_step?
+
   private
+    def skippable_step?
+      @step.in?(SKIPPABLE_STEPS)
+    end
+
     def require_pending_onboarding
       redirect_to root_path, notice: "ไม่มีข้อมูลที่ต้องกรอกเพิ่ม" unless Current.user.onboarding_pending?
     end

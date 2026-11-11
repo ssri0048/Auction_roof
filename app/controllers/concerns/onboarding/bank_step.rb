@@ -2,7 +2,7 @@
 module Onboarding::BankStep
   private
     def load_bank_step
-      @record = Current.user.bank_accounts.first || Current.user.bank_accounts.build(account_name: Current.user.profile&.legal_name)
+      @record = Current.user.bank_accounts.first || BankAccount.new(user_id: Current.user.id, account_name: Current.user.profile&.legal_name)
     end
 
     def save_bank_step

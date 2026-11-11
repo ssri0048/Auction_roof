@@ -1,0 +1,27 @@
+<p class="step-intro">ไม่บังคับ — กด "ข้าม" ได้ และแก้ไขภายหลังได้</p>
+
+<fieldset class="checks">
+  <legend>หมวดทรัพย์สินที่สนใจ</legend>
+  <%= form.collection_check_boxes :categories, OnboardingOptions::ASSET_CATEGORIES, :first, :last do |b| %>
+    <label class="check"><%= b.check_box %> <%= b.text %></label>
+  <% end %>
+</fieldset>
+
+<div class="field">
+  <%= form.label :province_codes, "จังหวัดที่สะดวกไปรับสินค้า (กด Ctrl/⌘ ค้างเพื่อเลือกหลายจังหวัด)" %>
+  <%= form.select :province_codes, Province.order(:name_th).map { [ it.name_th, it.code ] }, {}, multiple: true, size: 8 %>
+</div>
+
+<fieldset class="checks">
+  <legend>ช่องทางการแจ้งเตือน</legend>
+  <%= form.collection_check_boxes :notify_channels, OnboardingOptions::NOTIFY_CHANNELS, :first, :last do |b| %>
+    <label class="check"><%= b.check_box %> <%= b.text %></label>
+  <% end %>
+</fieldset>
+
+<fieldset class="checks">
+  <legend>แจ้งเตือนเมื่อ</legend>
+  <%= form.collection_check_boxes :notify_events, OnboardingOptions::NOTIFY_EVENTS, :first, :last do |b| %>
+    <label class="check"><%= b.check_box %> <%= b.text %></label>
+  <% end %>
+</fieldset>

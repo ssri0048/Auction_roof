@@ -46,6 +46,30 @@ module OnboardingTestHelper
     advance_onboarding(user, "documents")
   end
 
+  def complete_bank_step(user)
+    account = user.bank_accounts.create!(bank_code: "KBANK", account_name: user.profile.legal_name, account_number: "1234567890")
+    account.book_bank.attach(io: file_fixture("id_card.png").open, filename: "book_bank.png", content_type: "image/png")
+    advance_onboarding(user, "bank")
+    advance_onboarding(user, "interests")
+  end
+
+  def complete_consents_step(user)
+    Consent::DOCUMENTS.each do |kind, document|
+      user.consents.create!(kind: kind, document_version: document[:version], accepted_at: Time.current) if document[:required]
+    end
+    advance_onboarding(user, "consents")
+  end
+
+  # Fills in every step so the user is on "review", ready to submit.
+  def complete_onboarding_steps(user, bidder_type: "individual")
+    complete_profile_step(user, bidder_type: bidder_type)
+    complete_finance_step(user)
+    complete_address_step(user)
+    complete_documents_step(user)
+    complete_bank_step(user)
+    complete_consents_step(user)
+  end
+
   def advance_onboarding(user, step)
     user.complete_onboarding_step!(step)
   end

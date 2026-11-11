@@ -1,0 +1,14 @@
+<p class="step-intro">กรุณาอ่านและติ๊กยอมรับทีละข้อ ข้อที่มี * จำเป็นต้องยอมรับเพื่อใช้งานการประมูล</p>
+
+<div class="consents">
+  <% Consent::DOCUMENTS.each do |kind, document| %>
+    <label class="consent">
+      <%= form.check_box kind, { checked: @record.accepted?(kind) }, "1", "0" %>
+      <span>
+        <strong><%= document[:title] %><%= " *" if document[:required] %></strong>
+        <small><%= document[:summary] %></small>
+        <small class="consent__version">ฉบับวันที่ <%= document[:version] %></small>
+      </span>
+    </label>
+  <% end %>
+</div>

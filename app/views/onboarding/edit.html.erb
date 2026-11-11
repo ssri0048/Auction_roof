@@ -22,7 +22,12 @@
         <%= form.button "ย้อนกลับ", name: "back", value: "1", class: "btn btn-ghost", formnovalidate: true %>
       <% end %>
       <% unless @step == User::ONBOARDING_STEPS.last %>
-        <%= form.button "ถัดไป", class: "btn" %>
+        <span class="onboarding__next">
+          <% if skippable_step? %>
+            <%= form.button "ข้าม", name: "skip", value: "1", class: "btn btn-ghost", formnovalidate: true %>
+          <% end %>
+          <%= form.button "ถัดไป", class: "btn" %>
+        </span>
       <% end %>
     </div>
   <% end %>

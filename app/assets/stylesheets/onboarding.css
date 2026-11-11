@@ -142,3 +142,23 @@
 @media (max-width: 560px) {
   .doc-grid { grid-template-columns: 1fr; }
 }
+
+.onboarding__next { display: flex; gap: 12px; margin-left: auto; }
+.onboarding select[multiple] { min-height: 180px; }
+
+/* Step 7: consents */
+.consents { display: grid; gap: 10px; }
+.consent {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.consent:has(input:checked) { border-color: var(--primary); }
+.consent input { margin-top: 4px; }
+.consent span { display: grid; gap: 2px; }
+.consent small { color: var(--muted); }
+.consent__version { font-size: 0.75rem; }

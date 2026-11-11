@@ -1,0 +1,37 @@
+en:
+  activerecord:
+    attributes:
+      user:
+        bidder_type: "ประเภทผู้ประมูล"
+        first_name: "ชื่อ"
+        last_name: "นามสกุล"
+        email_address: "อีเมล"
+      user_profile:
+        title: "คำนำหน้า"
+        first_name_en: "ชื่อ (อังกฤษ)"
+        last_name_en: "นามสกุล (อังกฤษ)"
+        national_id: "เลขบัตรประชาชน"
+        date_of_birth: "วันเกิด"
+        gender: "เพศ"
+        line_id: "LINE ID"
+        photo: "รูปโปรไฟล์"
+        company_name_th: "ชื่อนิติบุคคล (ไทย)"
+        company_name_en: "ชื่อนิติบุคคล (อังกฤษ)"
+        tax_id: "เลขทะเบียนนิติบุคคล / เลขผู้เสียภาษี"
+        company_type: "ประเภทนิติบุคคล"
+        company_registered_on: "วันที่จดทะเบียน"
+        vat_registered: "จดทะเบียนภาษีมูลค่าเพิ่ม"
+        vat_branch_code: "รหัสสาขา"
+        authorized_person_name: "ชื่อผู้มีอำนาจลงนาม"
+        authorized_person_national_id: "เลขบัตรประชาชนผู้มีอำนาจลงนาม"
+        authorized_person_position: "ตำแหน่งผู้มีอำนาจลงนาม"
+        contact_person_name: "ชื่อผู้ติดต่อ"
+        contact_person_phone: "เบอร์โทรผู้ติดต่อ"
+        contact_person_email: "อีเมลผู้ติดต่อ"
+    errors:
+      models:
+        user_profile:
+          blank: "ต้องระบุ"
+          inclusion: "กรุณาเลือก"
+          taken: "ถูกใช้ลงทะเบียนแล้ว"
+          invalid: "รูปแบบไม่ถูกต้อง"

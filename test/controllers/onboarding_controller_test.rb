@@ -21,7 +21,10 @@ class OnboardingControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "next completes the step and moves on" do
-    patch onboarding_step_path("profile")
+    patch onboarding_step_path("profile"), params: { onboarding: {
+      bidder_type: "individual", first_name: "Two", last_name: "User", email_address: "two@example.com",
+      profile_attributes: { title: "mr", national_id: "1101700203450", date_of_birth: "1990-01-01" }
+    } }
 
     assert_redirected_to onboarding_step_path("finance")
     assert_equal 1, @bidder.reload.onboarding_step

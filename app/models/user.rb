@@ -28,7 +28,8 @@ class User < ApplicationRecord
   has_many :chat_messages, dependent: :destroy
   has_many :notifications, dependent: :destroy
 
-  has_one :profile, class_name: "UserProfile", dependent: :destroy
+  has_one :profile, class_name: "UserProfile", dependent: :destroy, inverse_of: :user
+  accepts_nested_attributes_for :profile, update_only: true
   has_many :addresses, dependent: :destroy
   has_many :bank_accounts, dependent: :destroy
   has_one :interest, class_name: "UserInterest", dependent: :destroy
@@ -48,6 +49,10 @@ class User < ApplicationRecord
   validates :email_address, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_nil: true
   validates :password, length: { minimum: 8 }, allow_nil: true
   validates :onboarding_step, numericality: { only_integer: true, in: 0..ONBOARDING_STEPS.length }
+  with_options on: :profile_step do
+    validates :bidder_type, presence: { message: "กรุณาเลือกประเภทผู้ประมูล" }
+    validates :email_address, presence: { message: "ต้องระบุ (ใช้ส่งใบเสร็จ)" }
+  end
   validate :document_type_and_size
 
   # Creates a new OTP, stores only its hash, and returns the plain code so it can be sent.

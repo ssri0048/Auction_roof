@@ -1,0 +1,138 @@
+<% profile = @record.profile %>
+
+<fieldset class="choice-group">
+  <legend>ประเภทผู้ประมูล</legend>
+  <label class="choice">
+    <%= form.radio_button :bidder_type, "individual" %>
+    <span><strong>บุคคลธรรมดา</strong><small>ประมูลในนามตัวเอง</small></span>
+  </label>
+  <label class="choice">
+    <%= form.radio_button :bidder_type, "juristic" %>
+    <span><strong>นิติบุคคล</strong><small>ประมูลในนามบริษัท / ห้างหุ้นส่วน</small></span>
+  </label>
+</fieldset>
+
+<div class="grid">
+  <div class="field">
+    <%= form.label :first_name, "ชื่อ (ไทย)" %>
+    <%= form.text_field :first_name, autocomplete: "given-name" %>
+  </div>
+  <div class="field">
+    <%= form.label :last_name, "นามสกุล (ไทย)" %>
+    <%= form.text_field :last_name, autocomplete: "family-name" %>
+  </div>
+  <div class="field">
+    <%= form.label :email_address, "อีเมล (ใช้ส่งใบเสร็จ)" %>
+    <%= form.email_field :email_address, autocomplete: "email" %>
+  </div>
+  <div class="field">
+    <label for="onboarding_phone">เบอร์โทรศัพท์</label>
+    <input id="onboarding_phone" type="tel" value="<%= @record.phone %>" readonly>
+  </div>
+</div>
+
+<%= form.fields_for :profile, profile do |p| %>
+  <section class="for-bidder-type for-individual">
+    <h2 class="form-section">ข้อมูลส่วนตัว</h2>
+    <div class="grid">
+      <div class="field">
+        <%= p.label :title, "คำนำหน้า" %>
+        <%= p.select :title, UserProfile::TITLES.invert, include_blank: "เลือก" %>
+      </div>
+      <div class="field">
+        <%= p.label :gender, "เพศ (ไม่บังคับ)" %>
+        <%= p.select :gender, UserProfile::GENDERS.invert, include_blank: "ไม่ระบุ" %>
+      </div>
+      <div class="field">
+        <%= p.label :first_name_en, "ชื่อ (อังกฤษ, ไม่บังคับ)" %>
+        <%= p.text_field :first_name_en, autocomplete: "off" %>
+      </div>
+      <div class="field">
+        <%= p.label :last_name_en, "นามสกุล (อังกฤษ, ไม่บังคับ)" %>
+        <%= p.text_field :last_name_en, autocomplete: "off" %>
+      </div>
+      <div class="field">
+        <%= p.label :national_id, "เลขบัตรประชาชน 13 หลัก" %>
+        <%= p.text_field :national_id, inputmode: "numeric", maxlength: 17, autocomplete: "off", placeholder: "1234567890123" %>
+      </div>
+      <div class="field">
+        <%= p.label :date_of_birth, "วันเกิด (อายุ 20 ปีขึ้นไป)" %>
+        <%= p.date_field :date_of_birth, max: UserProfile::MIN_AGE.years.ago.to_date %>
+      </div>
+      <div class="field">
+        <%= p.label :line_id, "LINE ID (ไม่บังคับ)" %>
+        <%= p.text_field :line_id, autocomplete: "off" %>
+      </div>
+      <div class="field">
+        <%= p.label :photo, "รูปโปรไฟล์ (ไม่บังคับ)" %>
+        <%= p.file_field :photo, accept: UserProfile::PHOTO_TYPES.join(",") %>
+      </div>
+    </div>
+  </section>
+
+  <section class="for-bidder-type for-juristic">
+    <h2 class="form-section">ข้อมูลนิติบุคคล</h2>
+    <div class="grid">
+      <div class="field">
+        <%= p.label :company_name_th, "ชื่อนิติบุคคล (ไทย)" %>
+        <%= p.text_field :company_name_th, autocomplete: "organization" %>
+      </div>
+      <div class="field">
+        <%= p.label :company_name_en, "ชื่อนิติบุคคล (อังกฤษ, ไม่บังคับ)" %>
+        <%= p.text_field :company_name_en %>
+      </div>
+      <div class="field">
+        <%= p.label :tax_id, "เลขทะเบียนนิติบุคคล / เลขผู้เสียภาษี 13 หลัก" %>
+        <%= p.text_field :tax_id, inputmode: "numeric", maxlength: 17, autocomplete: "off" %>
+      </div>
+      <div class="field">
+        <%= p.label :company_type, "ประเภทนิติบุคคล" %>
+        <%= p.select :company_type, UserProfile::COMPANY_TYPES.invert, include_blank: "เลือก" %>
+      </div>
+      <div class="field">
+        <%= p.label :company_registered_on, "วันที่จดทะเบียน" %>
+        <%= p.date_field :company_registered_on, max: Date.current %>
+      </div>
+      <div class="field">
+        <%= p.label :vat_branch_code, "รหัสสาขา (ถ้าจด VAT, สำนักงานใหญ่ = 00000)" %>
+        <%= p.text_field :vat_branch_code, inputmode: "numeric", maxlength: 5 %>
+      </div>
+    </div>
+    <label class="check">
+      <%= p.check_box :vat_registered %>
+      จดทะเบียนภาษีมูลค่าเพิ่ม (VAT)
+    </label>
+
+    <h2 class="form-section">ผู้มีอำนาจลงนาม</h2>
+    <div class="grid">
+      <div class="field">
+        <%= p.label :authorized_person_name, "ชื่อ-นามสกุล" %>
+        <%= p.text_field :authorized_person_name %>
+      </div>
+      <div class="field">
+        <%= p.label :authorized_person_position, "ตำแหน่ง" %>
+        <%= p.text_field :authorized_person_position %>
+      </div>
+      <div class="field">
+        <%= p.label :authorized_person_national_id, "เลขบัตรประชาชน 13 หลัก" %>
+        <%= p.text_field :authorized_person_national_id, inputmode: "numeric", maxlength: 17, autocomplete: "off" %>
+      </div>
+    </div>
+
+    <h2 class="form-section">ผู้ติดต่อ <small>(ไม่บังคับ ถ้าเป็นคนอื่นที่ไม่ใช่ผู้มีอำนาจลงนาม)</small></h2>
+    <div class="grid">
+      <div class="field">
+        <%= p.label :contact_person_name, "ชื่อ-นามสกุล" %>
+        <%= p.text_field :contact_person_name %>
+      </div>
+      <div class="field">
+        <%= p.label :contact_person_phone, "เบอร์โทร" %>
+        <%= p.telephone_field :contact_person_phone, inputmode: "numeric" %>
+      </div>
+      <div class="field">
+        <%= p.label :contact_person_email, "อีเมล" %>
+        <%= p.email_field :contact_person_email %>
+      </div>
+    </div>
+  </section>
+<% end %>

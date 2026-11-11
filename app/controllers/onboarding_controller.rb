@@ -7,6 +7,8 @@
 # form) and `save_<step>_step` (returns true when saved). Steps without them have
 # nothing to save yet.
 class OnboardingController < ApplicationController
+  include Onboarding::ProfileStep
+
   layout "site"
 
   before_action :require_pending_onboarding

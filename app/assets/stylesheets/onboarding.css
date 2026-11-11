@@ -108,3 +108,17 @@
 @media (max-width: 560px) {
   .choice-group { grid-template-columns: 1fr; }
 }
+
+.step-intro { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+.checks { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0; padding: 0; border: 0; }
+.checks legend { width: 100%; margin-bottom: 8px; font-size: 0.9rem; color: var(--muted); }
+.checks .check { min-height: 32px; }
+
+/* Step 2: show follow-up fields only when they apply */
+.when-occupation-other,
+.when-experienced { display: none; }
+.onboarding:has(select[name="onboarding[occupation]"] option[value="other"]:checked) .when-occupation-other,
+.onboarding:has(input[name="onboarding[has_auction_experience]"][value="true"]:checked) .when-experienced { display: grid; }
+.onboarding:has(select[name="onboarding[occupation]"] option[value="student"]:checked) .when-has-employer,
+.onboarding:has(select[name="onboarding[occupation]"] option[value="retired"]:checked) .when-has-employer { display: none; }

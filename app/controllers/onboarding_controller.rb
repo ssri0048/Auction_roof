@@ -8,6 +8,7 @@
 # nothing to save yet.
 class OnboardingController < ApplicationController
   include Onboarding::ProfileStep
+  include Onboarding::FinanceStep
 
   layout "site"
 
@@ -23,7 +24,7 @@ class OnboardingController < ApplicationController
   end
 
   def update
-    saved = run_step_hook(:save, default: true)
+    saved = params[:back] && params[:onboarding].blank? ? false : run_step_hook(:save, default: true)
 
     if params[:back]
       redirect_to onboarding_step_path(adjacent_step(-1))

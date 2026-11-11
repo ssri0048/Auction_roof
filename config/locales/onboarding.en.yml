@@ -28,6 +28,18 @@ en:
         contact_person_name: "ชื่อผู้ติดต่อ"
         contact_person_phone: "เบอร์โทรผู้ติดต่อ"
         contact_person_email: "อีเมลผู้ติดต่อ"
+        occupation: "อาชีพ"
+        occupation_other: "อาชีพ (ระบุ)"
+        employer: "ชื่อนายจ้าง / กิจการ"
+        position: "ตำแหน่ง"
+        industry: "ประเภทธุรกิจ"
+        income_range: "รายได้ต่อเดือน"
+        revenue_range: "รายได้ต่อปีของกิจการ"
+        source_of_funds: "แหล่งที่มาของเงิน"
+        purpose: "วัตถุประสงค์ในการประมูล"
+        budget_range: "งบประมาณต่อการประมูล"
+        is_pep: "สถานภาพทางการเมือง (PEP)"
+        auction_experience_note: "ประสบการณ์การประมูล"
     errors:
       models:
         user_profile:

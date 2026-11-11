@@ -1,0 +1,70 @@
+<% individual = Current.user.individual? %>
+
+<p class="step-intro">ใช้ประกอบการพิจารณาวงเงินและตามกฎหมายฟอกเงิน (AML) กรอกเป็นช่วงได้ ไม่ต้องระบุตัวเลขจริง</p>
+
+<div class="grid">
+  <% if individual %>
+    <div class="field">
+      <%= form.label :occupation, "อาชีพ" %>
+      <%= form.select :occupation, OnboardingOptions::OCCUPATIONS.invert, include_blank: "เลือก" %>
+    </div>
+    <div class="field when-occupation-other">
+      <%= form.label :occupation_other, "ระบุอาชีพ" %>
+      <%= form.text_field :occupation_other %>
+    </div>
+    <div class="field when-has-employer">
+      <%= form.label :employer, "ชื่อนายจ้าง / ชื่อกิจการ" %>
+      <%= form.text_field :employer, autocomplete: "organization" %>
+    </div>
+    <div class="field when-has-employer">
+      <%= form.label :position, "ตำแหน่ง (ไม่บังคับ)" %>
+      <%= form.text_field :position, autocomplete: "organization-title" %>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= form.label :industry, "ประเภทธุรกิจ / อุตสาหกรรม" %>
+    <%= form.select :industry, OnboardingOptions::INDUSTRIES.invert, include_blank: "เลือก" %>
+  </div>
+  <% if individual %>
+    <div class="field">
+      <%= form.label :income_range, "รายได้ต่อเดือน" %>
+      <%= form.select :income_range, OnboardingOptions::INCOME_RANGES.invert, include_blank: "เลือก" %>
+    </div>
+  <% else %>
+    <div class="field">
+      <%= form.label :revenue_range, "รายได้ต่อปีของกิจการ" %>
+      <%= form.select :revenue_range, OnboardingOptions::REVENUE_RANGES.invert, include_blank: "เลือก" %>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= form.label :purpose, "วัตถุประสงค์ในการประมูล" %>
+    <%= form.select :purpose, OnboardingOptions::PURPOSES.invert, include_blank: "เลือก" %>
+  </div>
+  <div class="field">
+    <%= form.label :budget_range, "งบประมาณต่อการประมูล (โดยประมาณ)" %>
+    <%= form.select :budget_range, OnboardingOptions::BUDGET_RANGES.invert, include_blank: "เลือก" %>
+  </div>
+</div>
+
+<fieldset class="checks">
+  <legend>แหล่งที่มาของเงิน (เลือกได้หลายข้อ)</legend>
+  <%= form.collection_check_boxes :source_of_funds, OnboardingOptions::SOURCES_OF_FUNDS, :first, :last do |b| %>
+    <label class="check"><%= b.check_box %> <%= b.text %></label>
+  <% end %>
+</fieldset>
+
+<fieldset class="checks">
+  <legend>คุณเป็นบุคคลที่มีสถานภาพทางการเมือง (PEP) หรือเป็นครอบครัว/ผู้ใกล้ชิดของบุคคลดังกล่าวหรือไม่</legend>
+  <label class="check"><%= form.radio_button :is_pep, false %> ไม่ใช่</label>
+  <label class="check"><%= form.radio_button :is_pep, true %> ใช่</label>
+</fieldset>
+
+<fieldset class="checks">
+  <legend>เคยประมูลทรัพย์สินมาก่อนหรือไม่ (ไม่บังคับ)</legend>
+  <label class="check"><%= form.radio_button :has_auction_experience, false %> ไม่เคย</label>
+  <label class="check"><%= form.radio_button :has_auction_experience, true %> เคย</label>
+</fieldset>
+<div class="field when-experienced">
+  <%= form.label :auction_experience_note, "ประมูลที่ไหน" %>
+  <%= form.text_field :auction_experience_note %>
+</div>

@@ -67,6 +67,26 @@ class UserProfile < ApplicationRecord
     end
   end
 
+  # Step 2
+  normalizes :source_of_funds, with: ->(list) { Array(list).compact_blank.uniq }
+  normalizes :occupation_other, :employer, :position, :auction_experience_note, with: ->(v) { v.squish.presence }
+
+  with_options on: :finance_step do
+    with_options if: -> { user.individual? } do
+      validates :occupation, inclusion: { in: OnboardingOptions::OCCUPATIONS.keys }
+      validates :occupation_other, presence: true, if: -> { occupation == "other" }
+      validates :employer, presence: true, unless: -> { occupation.in?(OnboardingOptions::NO_EMPLOYER_OCCUPATIONS) }
+      validates :income_range, inclusion: { in: OnboardingOptions::INCOME_RANGES.keys }
+    end
+    validates :revenue_range, inclusion: { in: OnboardingOptions::REVENUE_RANGES.keys }, if: -> { user.juristic? }
+    validates :industry, inclusion: { in: OnboardingOptions::INDUSTRIES.keys }
+    validates :source_of_funds, presence: { message: "เลือกอย่างน้อย 1 ข้อ" }
+    validate :source_of_funds_are_known
+    validates :purpose, inclusion: { in: OnboardingOptions::PURPOSES.keys }
+    validates :budget_range, inclusion: { in: OnboardingOptions::BUDGET_RANGES.keys }
+    validates :is_pep, inclusion: { in: [ true, false ], message: "กรุณาตอบ" }
+  end
+
   before_save :clear_fields_for_other_bidder_type
 
   # Formats a 13-digit Thai ID showing only the last 3 digits: "x-xxxx-xxxxx-12-3".
@@ -97,7 +117,17 @@ class UserProfile < ApplicationRecord
     "#{"x" * [ passport_no.length - 3, 0 ].max}#{passport_no.last(3)}"
   end
 
+  # Name the bank account should be under: the person's name or the company's.
+  def legal_name
+    user.juristic? ? company_name_th : user.full_name
+  end
+
   private
+    def source_of_funds_are_known
+      unknown = source_of_funds - OnboardingOptions::SOURCES_OF_FUNDS.keys
+      errors.add(:source_of_funds, "ไม่ถูกต้อง") if unknown.any?
+    end
+
     def old_enough
       return if date_of_birth.blank?
 

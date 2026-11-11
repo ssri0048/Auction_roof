@@ -126,3 +126,19 @@
 /* Step 3: hide the extra address while "same as registered" is ticked */
 .onboarding:has(input[name="onboarding[contact_same]"][type="checkbox"]:checked) [data-same-as="contact"],
 .onboarding:has(input[name="onboarding[tax_invoice_same]"][type="checkbox"]:checked) [data-same-as="tax_invoice"] { display: none; }
+
+/* Step 4: document uploads */
+.doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
+.doc-upload { display: grid; gap: 8px; align-content: start; }
+.doc-upload label { font-size: 0.9rem; color: var(--muted); }
+.doc-upload__current { display: flex; gap: 10px; align-items: center; }
+.doc-upload__current img { width: 96px; height: 64px; object-fit: cover; border: 1px solid var(--border); border-radius: 8px; }
+.doc-upload__current small,
+.doc-upload__files { color: var(--muted); font-size: 0.85rem; }
+.doc-upload__files { margin: 0; padding-left: 18px; }
+.when-attorney { display: none; }
+.onboarding:has(input[name="onboarding[account_user_is_authorized_person]"][type="checkbox"]:not(:checked)) .when-attorney { display: grid; }
+
+@media (max-width: 560px) {
+  .doc-grid { grid-template-columns: 1fr; }
+}

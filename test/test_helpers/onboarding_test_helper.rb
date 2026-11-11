@@ -33,6 +33,19 @@ module OnboardingTestHelper
     advance_onboarding(user, "address")
   end
 
+  def complete_documents_step(user)
+    image = { io: file_fixture("id_card.png").open, filename: "id_card.png", content_type: "image/png" }
+    if user.individual?
+      user.profile.id_card_front.attach(**image)
+      user.profile.selfie_with_id.attach(**image.merge(io: file_fixture("id_card.png").open))
+    else
+      user.profile.update!(company_affidavit_issued_on: 1.month.ago.to_date)
+      user.profile.company_affidavit.attach(**image)
+      user.profile.authorized_person_id_card.attach(**image.merge(io: file_fixture("id_card.png").open))
+    end
+    advance_onboarding(user, "documents")
+  end
+
   def advance_onboarding(user, step)
     user.complete_onboarding_step!(step)
   end

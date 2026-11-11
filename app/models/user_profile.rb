@@ -11,6 +11,8 @@ class UserProfile < ApplicationRecord
   }.freeze
   PHOTO_TYPES = %w[image/jpeg image/png image/webp].freeze
   MIN_AGE = 20
+  AFFIDAVIT_MAX_AGE = 6.months
+  MAX_SUPPORTING_DOCUMENTS = 5
 
   # Step 1 fields that only apply to one bidder type; the other type's are cleared on save.
   INDIVIDUAL_FIELDS = %i[ title first_name_en last_name_en national_id passport_no date_of_birth gender line_id ].freeze
@@ -34,6 +36,8 @@ class UserProfile < ApplicationRecord
   has_one_attached :vat_certificate
   has_one_attached :authorized_person_id_card
   has_one_attached :power_of_attorney
+  has_one_attached :attorney_id_card
+  has_many_attached :supporting_documents
 
   normalizes :national_id, :tax_id, :authorized_person_national_id, with: ->(n) { n.gsub(/\D/, "").presence }
   normalizes :passport_no, with: ->(p) { p.gsub(/\s/, "").upcase.presence }
@@ -87,6 +91,22 @@ class UserProfile < ApplicationRecord
     validates :is_pep, inclusion: { in: [ true, false ], message: "กรุณาตอบ" }
   end
 
+  # Step 4
+  with_options on: :documents_step do
+    validates :id_card_front, :selfie_with_id, attached: true, if: -> { user.individual? }
+
+    with_options if: -> { user.juristic? } do
+      validates :company_affidavit, :authorized_person_id_card, attached: true
+      validates :company_affidavit_issued_on, presence: true
+      validate :affidavit_recent_enough
+      validates :vat_certificate, attached: true, if: :vat_registered?
+      validates :power_of_attorney, :attorney_id_card, attached: true, unless: :account_user_is_authorized_person?
+    end
+
+    validates :supporting_documents, length: { maximum: MAX_SUPPORTING_DOCUMENTS, message: "ได้ไม่เกิน #{MAX_SUPPORTING_DOCUMENTS} ไฟล์" }
+    validate :documents_type_and_size
+  end
+
   before_save :clear_fields_for_other_bidder_type
 
   # Formats a 13-digit Thai ID showing only the last 3 digits: "x-xxxx-xxxxx-12-3".
@@ -122,7 +142,27 @@ class UserProfile < ApplicationRecord
     user.juristic? ? company_name_th : user.full_name
   end
 
+  # Every Step 4 document that is attached, as [name, attachment].
+  def identity_documents
+    %i[ id_card_front selfie_with_id company_affidavit vat_certificate authorized_person_id_card power_of_attorney attorney_id_card ]
+      .map { [ it, public_send(it) ] }.select { |_, attachment| attachment.attached? }
+  end
+
   private
+    def affidavit_recent_enough
+      return if company_affidavit_issued_on.blank? || company_affidavit_issued_on >= AFFIDAVIT_MAX_AGE.ago.to_date
+
+      errors.add(:company_affidavit_issued_on, "ต้องออกให้ไม่เกิน 6 เดือน")
+    end
+
+    def documents_type_and_size
+      identity_documents.map(&:last).concat(supporting_documents.to_a).each do |attachment|
+        name = attachment.name
+        errors.add(name, "ต้องเป็นไฟล์รูปภาพ (JPG/PNG/WEBP) หรือ PDF") unless attachment.content_type.in?(User::DOCUMENT_TYPES)
+        errors.add(name, "ต้องมีขนาดไม่เกิน 10MB") if attachment.byte_size > 10.megabytes
+      end
+    end
+
     def source_of_funds_are_known
       unknown = source_of_funds - OnboardingOptions::SOURCES_OF_FUNDS.keys
       errors.add(:source_of_funds, "ไม่ถูกต้อง") if unknown.any?

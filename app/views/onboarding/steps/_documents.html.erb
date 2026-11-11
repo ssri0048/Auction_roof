@@ -1,0 +1,44 @@
+<p class="step-intro">
+  ไฟล์ JPG, PNG, WEBP หรือ PDF ไม่เกิน 10MB ต่อไฟล์ ·
+  สำเนาบัตรควรขีดคร่อมและเขียนกำกับว่า <strong>"ใช้สำหรับการประมูลเท่านั้น"</strong>
+</p>
+
+<% if Current.user.individual? %>
+  <div class="doc-grid">
+    <%= render "onboarding/document_field", form: form, name: :id_card_front, label: "บัตรประชาชน (ด้านหน้า)" %>
+    <%= render "onboarding/document_field", form: form, name: :selfie_with_id, label: "รูปถ่ายคู่กับบัตรประชาชน (selfie)" %>
+  </div>
+<% else %>
+  <div class="doc-grid">
+    <%= render "onboarding/document_field", form: form, name: :company_affidavit, label: "หนังสือรับรองบริษัท (ออกให้ไม่เกิน 6 เดือน)" %>
+    <div class="field">
+      <%= form.label :company_affidavit_issued_on, "วันที่ออกหนังสือรับรอง" %>
+      <%= form.date_field :company_affidavit_issued_on, max: Date.current %>
+    </div>
+    <% if form.object.vat_registered? %>
+      <%= render "onboarding/document_field", form: form, name: :vat_certificate, label: "ภ.พ.20" %>
+    <% end %>
+    <%= render "onboarding/document_field", form: form, name: :authorized_person_id_card, label: "บัตรประชาชนผู้มีอำนาจลงนาม" %>
+  </div>
+
+  <label class="check">
+    <%= form.check_box :account_user_is_authorized_person %>
+    ฉันเป็นผู้มีอำนาจลงนามเอง
+  </label>
+  <div class="doc-grid when-attorney">
+    <%= render "onboarding/document_field", form: form, name: :power_of_attorney, label: "หนังสือมอบอำนาจ" %>
+    <%= render "onboarding/document_field", form: form, name: :attorney_id_card, label: "บัตรประชาชนผู้รับมอบอำนาจ" %>
+  </div>
+<% end %>
+
+<div class="doc-upload">
+  <%= form.label :supporting_documents, "เอกสารเพิ่มเติม (ไม่บังคับ) เช่น statement หรือหลักฐานรายได้ 3 เดือนล่าสุด เพื่อขอวงเงินสูงขึ้น" %>
+  <% if form.object.supporting_documents.attached? %>
+    <ul class="doc-upload__files">
+      <% form.object.supporting_documents.select { it.blob.persisted? }.each do |file| %>
+        <li><%= link_to file.filename, rails_blob_path(file, disposition: "inline"), target: "_blank", rel: "noopener" %></li>
+      <% end %>
+    </ul>
+  <% end %>
+  <%= form.file_field :supporting_documents, multiple: true, accept: User::DOCUMENT_TYPES.join(",") %>
+</div>

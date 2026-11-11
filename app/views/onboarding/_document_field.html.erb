@@ -1,0 +1,16 @@
+<%# One upload with a preview of the file already on record. Locals: form, name, label %>
+<% attachment = form.object.public_send(name) %>
+<div class="doc-upload">
+  <%= form.label name, label %>
+  <% if attachment.attached? && attachment.blob.persisted? %>
+    <div class="doc-upload__current">
+      <% if attachment.image? %>
+        <%= link_to image_tag(rails_blob_path(attachment, disposition: "inline"), alt: label), rails_blob_path(attachment, disposition: "inline"), target: "_blank", rel: "noopener" %>
+      <% else %>
+        <%= link_to "📄 #{attachment.filename}", rails_blob_path(attachment, disposition: "inline"), target: "_blank", rel: "noopener" %>
+      <% end %>
+      <small>อัปโหลดแล้ว · เลือกไฟล์ใหม่เพื่อแทนที่</small>
+    </div>
+  <% end %>
+  <%= form.file_field name, accept: User::DOCUMENT_TYPES.join(",") %>
+</div>

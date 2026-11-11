@@ -1,6 +1,6 @@
-# User Onboarding Flow — Draft
+# User Onboarding Flow
 
-Status: **Draft for review** · Last updated: 2026-11-11
+Status: **Implemented (phase 1)** · Last updated: 2026-11-11
 
 ## 1. Goal
 
@@ -278,12 +278,23 @@ Implementation notes:
   endpoints.
 - Mirror the steps in `api/v1` so a mobile app can reuse them.
 
-## 8. Open questions
+## 8. Decisions (phase 1)
 
-1. Do we support **foreign** bidders in phase 1, or Thai nationals and Thai juristic persons only?
-2. Is manual admin approval acceptable, or do we need e-KYC (NDID, DOPA ID-card check) for instant approval?
-3. Should income or budget drive an automatic `bid_limit`, or is it informational only?
-4. Can one person act for several companies, so one login is linked to several juristic profiles?
-5. Who owns the PDPA notice and the auction rules text, and how are versions published?
-6. What is the target SLA for admin review?
-7. Is the bank account needed at onboarding, or only before the first deposit? Deferring it would shorten onboarding.
+Questions raised while drafting, and what phase 1 does:
+
+| # | Question | Phase 1 decision |
+|---|---|---|
+| 0 | Verify the phone by OTP? | **No.** The phone number from registration is used as is; Step 0 was dropped, so the wizard has 8 steps. |
+| 1 | Foreign bidders? | **Thai only.** Individuals need a Thai national ID; the passport columns stay for later. |
+| 2 | Manual approval or e-KYC? | **Manual** admin review. |
+| 3 | Does budget set `bid_limit`? | **Informational.** The admin sets `bid_limit` on approval (pre-filled from the budget range); bids above it are rejected. |
+| 4 | One login for several companies? | **No:** one user, one profile. |
+| 5 | Owner of the PDPA / rules texts? | **Open.** Short summaries and versions live in `Consent::DOCUMENTS`; bump a version to ask everyone again. |
+| 6 | Review SLA? | **Open.** The UI promises 1–2 business days. |
+| 7 | Bank account at onboarding? | **Yes**, required in Step 5. |
+
+Other phase 1 notes:
+
+- Existing users go through onboarding too; staff roles (`manage_users`, `manage_roles`, `manage_auctions`, `view_reports`) are exempt.
+- Reviews use the `manage_users` permission.
+- Not built yet: blacklist check, email notifications (in-app + SMS only), re-review after an approved user edits identity/bank data (approved users have no edit screen yet), deposits, and the `api/v1` onboarding endpoints.

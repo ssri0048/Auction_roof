@@ -23,5 +23,12 @@ module AuctionRoof
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Keys for `encrypts` (national ID, passport and bank account numbers).
+    # Set them in .env or on the host; generate new ones with `bin/rails db:encryption:init`.
+    # Changing them makes existing encrypted data unreadable.
+    config.active_record.encryption.primary_key = ENV["ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY"].presence
+    config.active_record.encryption.deterministic_key = ENV["ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY"].presence
+    config.active_record.encryption.key_derivation_salt = ENV["ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT"].presence
   end
 end

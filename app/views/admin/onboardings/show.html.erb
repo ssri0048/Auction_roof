@@ -1,0 +1,102 @@
+<% content_for :admin_title, "ตรวจสอบ #{@user.username}" %>
+
+<header class="admin-head">
+  <h1><%= @user.juristic? ? @user.profile&.company_name_th : @user.full_name %></h1>
+  <div class="admin-tools">
+    <%= link_to "← ย้อนกลับ", admin_onboardings_path(status: @user.onboarding_status), class: "btn btn-small btn-ghost" %>
+  </div>
+</header>
+
+<section class="panel">
+  <h2 class="panel-title">ผลตรวจอัตโนมัติ</h2>
+  <ul class="check-list">
+    <% @checks.each do |check| %>
+      <li class="check-badge check-badge--<%= check[:status] %>"><%= { ok: "✓", warn: "!", fail: "✗" }[check[:status]] %> <%= check[:label] %></li>
+    <% end %>
+  </ul>
+</section>
+
+<div class="review-layout">
+  <section class="panel">
+    <%= render "onboarding/summary", user: @user, edit_links: false %>
+  </section>
+
+  <section class="panel">
+    <h2 class="panel-title">เอกสาร</h2>
+    <div class="review-docs">
+      <% (@user.profile&.identity_documents.to_a + [ [ :book_bank, @user.bank_accounts.first&.book_bank ] ]).each do |name, attachment| %>
+        <% next unless attachment&.attached? %>
+        <figure>
+          <% url = rails_blob_path(attachment, disposition: "inline") %>
+          <% if attachment.image? %>
+            <%= link_to image_tag(url, alt: name.to_s.humanize), url, target: "_blank", rel: "noopener" %>
+          <% else %>
+            <%= link_to "📄 เปิด PDF", url, target: "_blank", rel: "noopener", class: "doc-placeholder" %>
+          <% end %>
+          <figcaption><%= name == :book_bank ? "หน้าสมุดบัญชี" : UserProfile.human_attribute_name(name) %></figcaption>
+        </figure>
+      <% end %>
+    </div>
+  </section>
+</div>
+
+<% if @user.onboarding_submitted? %>
+  <section class="panel review-actions">
+    <h2 class="panel-title">ผลการตรวจ</h2>
+
+    <%= form_with model: @review, scope: :review, url: review_admin_onboarding_path(@user), class: "review-action" do |form| %>
+      <%= form.hidden_field :action, value: "approve" %>
+      <h3>อนุมัติ</h3>
+      <div class="field">
+        <%= form.label :bid_limit, "วงเงินประมูลสูงสุด (บาท, เว้นว่าง = ไม่จำกัด)" %>
+        <%= form.number_field :bid_limit, min: 1, step: 1 %>
+      </div>
+      <%= form.submit "อนุมัติ", class: "btn btn-small" %>
+    <% end %>
+
+    <%= form_with model: @review, scope: :review, url: review_admin_onboarding_path(@user), class: "review-action" do |form| %>
+      <%= form.hidden_field :action, value: "request_changes" %>
+      <h3>ขอให้แก้ไข</h3>
+      <fieldset class="checks">
+        <legend>ขั้นตอนที่ต้องแก้</legend>
+        <%= form.collection_check_boxes :steps_flagged, OnboardingOptions::STEP_LABELS.except("review"), :first, :last do |b| %>
+          <label class="check"><%= b.check_box %> <%= b.text %></label>
+        <% end %>
+      </fieldset>
+      <div class="field">
+        <%= form.label :comment, "สิ่งที่ต้องแก้ไข", for: "review_comment_changes" %>
+        <%= form.text_area :comment, rows: 3, id: "review_comment_changes" %>
+      </div>
+      <%= form.submit "ส่งกลับให้แก้ไข", class: "btn btn-small btn-ghost" %>
+    <% end %>
+
+    <%= form_with model: @review, scope: :review, url: review_admin_onboarding_path(@user), class: "review-action" do |form| %>
+      <%= form.hidden_field :action, value: "reject" %>
+      <h3>ปฏิเสธ</h3>
+      <div class="field">
+        <%= form.label :comment, "เหตุผล", for: "review_comment_reject" %>
+        <%= form.text_area :comment, rows: 3, id: "review_comment_reject" %>
+      </div>
+      <%= form.submit "ปฏิเสธ", class: "btn btn-small btn-ghost link-danger", data: { turbo_confirm: "ยืนยันการปฏิเสธ?" } %>
+    <% end %>
+  </section>
+<% end %>
+
+<section class="panel">
+  <h2 class="panel-title">ประวัติการตรวจ</h2>
+  <% if @reviews.any? %>
+    <ol class="review-log">
+      <% @reviews.each do |review| %>
+        <li>
+          <strong><%= { "approve" => "อนุมัติ", "request_changes" => "ขอให้แก้ไข", "reject" => "ปฏิเสธ" }[review.action] %></strong>
+          โดย <%= review.reviewer.full_name %> · <%= review.created_at.strftime("%d/%m/%Y %H:%M") %>
+          <% if review.steps_flagged.any? %> · ขั้นตอน: <%= review.steps_flagged.map { OnboardingOptions::STEP_LABELS[it] }.join(", ") %><% end %>
+          <% if review.bid_limit %> · วงเงิน <%= number_with_delimiter(review.bid_limit.to_i) %> บาท<% end %>
+          <% if review.comment.present? %><p><%= review.comment %></p><% end %>
+        </li>
+      <% end %>
+    </ol>
+  <% else %>
+    <p class="sub">ยังไม่มีการตรวจ</p>
+  <% end %>
+</section>

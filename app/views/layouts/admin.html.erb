@@ -8,6 +8,12 @@
       <% if can?(:manage_users) %>
         <%= link_to "ผู้ใช้งาน", admin_users_path, class: ("is-active" if controller_name == "users") %>
       <% end %>
+      <% if can?(:manage_users) %>
+        <%= link_to admin_onboardings_path, class: ("is-active" if controller_name == "onboardings") do %>
+          ตรวจสอบผู้ประมูล
+          <% if (waiting = User.onboarding_submitted.count).positive? %><span class="admin-count"><%= waiting %></span><% end %>
+        <% end %>
+      <% end %>
       <% if can?(:manage_roles) %>
         <%= link_to "บทบาทและสิทธิ์", admin_roles_path, class: ("is-active" if controller_name == "roles") %>
       <% end %>

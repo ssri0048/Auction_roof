@@ -1,5 +1,6 @@
 class BidsController < ApplicationController
   require_permission :place_bids
+  before_action :require_approved_bidder
   rate_limit to: 30, within: 1.minute, only: :create
 
   def create

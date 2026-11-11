@@ -1,0 +1,44 @@
+<% content_for :admin_title, "ตรวจสอบผู้ประมูล" %>
+<% labels = { "submitted" => "รอตรวจ", "needs_changes" => "ขอแก้ไข", "approved" => "อนุมัติแล้ว", "rejected" => "ปฏิเสธ", "in_progress" => "กำลังกรอก" } %>
+
+<header class="admin-head">
+  <h1>ตรวจสอบผู้ประมูล</h1>
+</header>
+
+<nav class="tabs" aria-label="สถานะ">
+  <% Admin::OnboardingsController::STATUSES.each do |status| %>
+    <%= link_to admin_onboardings_path(status: status), class: ("is-active" if status == @status), "aria-current": ("page" if status == @status) do %>
+      <%= labels[status] %> <span class="admin-count"><%= @counts[status].to_i %></span>
+    <% end %>
+  <% end %>
+</nav>
+
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr><th>ผู้ประมูล</th><th>ประเภท</th><th><%= @status == "submitted" ? "ส่งเมื่อ" : "อัปเดตล่าสุด" %></th><th>ต้องตรวจเพิ่ม</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <% warnings = Onboarding::Checks.new(user).all.reject { it[:status] == :ok } %>
+        <tr>
+          <td>
+            <strong><%= user.juristic? ? user.profile&.company_name_th : user.full_name %></strong>
+            <small class="sub">@<%= user.username %> · <%= user.phone %></small>
+          </td>
+          <td><%= user.juristic? ? "นิติบุคคล" : "บุคคลธรรมดา" %></td>
+          <td><%= (@status == "submitted" ? user.submitted_at : user.updated_at)&.strftime("%d/%m/%Y %H:%M") %></td>
+          <td>
+            <% if warnings.any? %>
+              <%= safe_join(warnings.map { tag.span(it[:label], class: "check-badge check-badge--#{it[:status]}") }, " ") %>
+            <% else %>—<% end %>
+          </td>
+          <td class="actions"><%= link_to(@status == "submitted" ? "ตรวจสอบ" : "ดูรายละเอียด", admin_onboarding_path(user)) %></td>
+        </tr>
+      <% end %>
+      <% if @users.empty? %>
+        <tr><td colspan="5" class="empty">ไม่มีรายการ</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

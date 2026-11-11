@@ -32,8 +32,6 @@
 .onboarding-progress__steps .is-done span::before,
 .onboarding-progress__steps .is-done a::before { content: "✓ "; }
 
-.onboarding__pending { margin: 0; color: var(--muted); }
-
 .onboarding__actions {
   display: flex;
   justify-content: space-between;

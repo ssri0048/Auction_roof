@@ -6,6 +6,7 @@ module Api
       # POST /api/v1/auctions/:auction_id/bids  { "bid": { "amount": "12500" } }
       def create
         return render(json: { error: "forbidden" }, status: :forbidden) unless can?(:place_bids)
+        return render(json: { error: "onboarding_not_approved" }, status: :forbidden) unless Current.user.approved_bidder?
 
         auction = Auction.visible.find(params[:auction_id])
         bid = auction.place_bid(user: Current.user, amount: params.expect(bid: [ :amount ])[:amount])

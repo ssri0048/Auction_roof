@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_11_130008) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_11_130009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -159,6 +159,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_130008) do
     t.text "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "bid_limit", precision: 15, scale: 2
     t.index ["reviewer_id"], name: "index_onboarding_reviews_on_reviewer_id"
     t.index ["user_id"], name: "index_onboarding_reviews_on_user_id"
   end

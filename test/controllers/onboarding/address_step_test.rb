@@ -2,7 +2,7 @@ require "test_helper"
 
 class Onboarding::AddressStepTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:two)
+    @user = users(:applicant)
     complete_profile_step(@user)
     complete_finance_step(@user)
     @sub_district = sample_sub_district

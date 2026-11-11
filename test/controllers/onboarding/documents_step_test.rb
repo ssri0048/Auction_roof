@@ -2,7 +2,7 @@ require "test_helper"
 
 class Onboarding::DocumentsStepTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:two)
+    @user = users(:applicant)
     complete_profile_step(@user)
     complete_finance_step(@user)
     complete_address_step(@user)

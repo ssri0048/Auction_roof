@@ -11,11 +11,7 @@
   <% end %>
 
   <%= form_with model: @record || false, scope: :onboarding, url: onboarding_step_path(@step), method: :patch, multipart: true, class: "form" do |form| %>
-    <% if lookup_context.exists?(@step, [ "onboarding/steps" ], true) %>
-      <%= render "onboarding/steps/#{@step}", form: form %>
-    <% else %>
-      <p class="onboarding__pending">ขั้นตอนนี้ยังไม่เปิดให้กรอก กด "ถัดไป" เพื่อไปต่อ</p>
-    <% end %>
+    <%= render "onboarding/steps/#{User::ONBOARDING_STEPS.fetch(@step_index)}", form: form %>
 
     <div class="onboarding__actions">
       <% if @step_index > 0 %>

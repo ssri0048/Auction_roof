@@ -2,7 +2,7 @@ require "test_helper"
 
 class Onboarding::BankStepTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:two)
+    @user = users(:applicant)
     complete_profile_step(@user)
     complete_finance_step(@user)
     complete_address_step(@user)
@@ -11,13 +11,13 @@ class Onboarding::BankStepTest < ActionDispatch::IntegrationTest
   end
 
   def bank_params(**overrides)
-    { onboarding: { bank_code: "KBANK", account_name: "นาย Two User", account_number: "123-4-56789-0",
+    { onboarding: { bank_code: "KBANK", account_name: "นาย Applicant User", account_number: "123-4-56789-0",
                     book_bank: fixture_file_upload("id_card.png", "image/png"), **overrides } }
   end
 
   test "pre-fills the account name from the profile" do
     get onboarding_step_path("bank")
-    assert_select "input[name='onboarding[account_name]'][value=?]", "Two User"
+    assert_select "input[name='onboarding[account_name]'][value=?]", "Applicant User"
   end
 
   test "saves the account and recognises the bidder's own name" do

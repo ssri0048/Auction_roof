@@ -94,14 +94,58 @@ class User < ApplicationRecord
     onboarding_required? && (onboarding_in_progress? || onboarding_needs_changes?)
   end
 
+  # Steps an admin asked the user to fix; only these (and review) reopen.
+  def onboarding_flagged_steps
+    return [] unless onboarding_needs_changes?
+
+    onboarding_reviews.action_request_changes.order(:created_at).last&.steps_flagged.to_a
+  end
+
   def current_onboarding_step
-    ONBOARDING_STEPS[onboarding_step] || ONBOARDING_STEPS.last
+    onboarding_flagged_steps.first || ONBOARDING_STEPS[onboarding_step] || ONBOARDING_STEPS.last
   end
 
   # Completed steps and the first incomplete one can be opened; later ones can't.
   def onboarding_step_reachable?(step)
+    return step.in?(onboarding_flagged_steps + [ ONBOARDING_STEPS.last ]) if onboarding_needs_changes?
+
     index = ONBOARDING_STEPS.index(step)
     index.present? && index <= onboarding_step
+  end
+
+  # Where "ถัดไป" leads after the given step.
+  def next_onboarding_step(step)
+    if onboarding_needs_changes?
+      later = onboarding_flagged_steps.select { ONBOARDING_STEPS.index(it) > ONBOARDING_STEPS.index(step) }
+      later.first || ONBOARDING_STEPS.last
+    else
+      ONBOARDING_STEPS[ONBOARDING_STEPS.index(step) + 1] || ONBOARDING_STEPS.last
+    end
+  end
+
+  # Bidders may bid once onboarding is approved; staff aren't onboarded.
+  def approved_bidder?
+    can?(:place_bids) && (!onboarding_required? || onboarding_approved?)
+  end
+
+  # Records an admin decision on a submitted onboarding and tells the user.
+  def review_onboarding!(reviewer:, action:, comment: nil, steps_flagged: [], bid_limit: nil)
+    review = onboarding_reviews.build(reviewer: reviewer, action: action, comment: comment,
+                                      steps_flagged: Array(steps_flagged).compact_blank, bid_limit: bid_limit.presence)
+    transaction do
+      review.save!
+      case review.action
+      when "approve"
+        update!(onboarding_status: :approved, approved_at: Time.current, approved_by: reviewer, bid_limit: review.bid_limit)
+      when "request_changes"
+        update!(onboarding_status: :needs_changes)
+      when "reject"
+        update!(onboarding_status: :rejected)
+      end
+    end
+    event = { "approve" => :approved, "request_changes" => :needs_changes, "reject" => :rejected }.fetch(review.action)
+    Onboarding::Notifier.notify(self, event, review.comment)
+    review
   end
 
   def complete_onboarding_step!(step)

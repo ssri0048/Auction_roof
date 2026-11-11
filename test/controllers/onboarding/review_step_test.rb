@@ -2,7 +2,7 @@ require "test_helper"
 
 class Onboarding::ReviewStepTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:two)
+    @user = users(:applicant)
     complete_onboarding_steps(@user)
     sign_in_as @user
     Sms::Mock.clear

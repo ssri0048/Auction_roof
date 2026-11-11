@@ -31,4 +31,22 @@ class BidsControllerTest < ActionDispatch::IntegrationTest
     post auction_bids_path(@auction), params: { bid: { amount: 10000 } }
     assert_redirected_to root_path
   end
+
+  test "bidders must pass onboarding review first" do
+    sign_in_as users(:applicant)
+    post auction_bids_path(@auction), params: { bid: { amount: 10000 } }
+
+    assert_redirected_to onboarding_path
+    assert_equal "ต้องยืนยันตัวตนให้ผ่านก่อนจึงจะเสนอราคาได้", flash[:alert]
+    assert_equal 0, @auction.reload.bids_count
+  end
+
+  test "bids above the approved bid limit are rejected" do
+    users(:two).update!(bid_limit: 15000)
+    sign_in_as users(:two)
+    post auction_bids_path(@auction), params: { bid: { amount: 20000 } }
+
+    assert_match "เกินวงเงินประมูลของคุณ (15,000 บาท)", flash[:alert]
+    assert_equal 0, @auction.reload.bids_count
+  end
 end

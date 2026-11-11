@@ -51,6 +51,11 @@
           <p class="muted">นี่คือรายการของคุณ จึงเสนอราคาเองไม่ได้</p>
         <% elsif !can?(:place_bids) %>
           <p class="muted">บัญชีของคุณยังไม่มีสิทธิ์เสนอราคา</p>
+        <% elsif !Current.user.approved_bidder? %>
+          <p class="muted">
+            ต้องยืนยันตัวตนให้ผ่านก่อนจึงจะเสนอราคาได้
+            <% if Current.user.onboarding_pending? %><%= link_to "กรอกข้อมูล", onboarding_path %><% end %>
+          </p>
         <% else %>
           <%= form_with model: [ @auction, @bid ], class: "bid-form" do |form| %>
             <%= form.label :amount, "ราคาที่เสนอ (บาท)" %>

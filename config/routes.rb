@@ -23,6 +23,9 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
+    resources :onboardings, only: %i[ index show ] do
+      post :review, on: :member
+    end
     resources :auctions, only: :index do
       member do
         post :close

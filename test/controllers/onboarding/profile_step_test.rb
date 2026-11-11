@@ -2,7 +2,7 @@ require "test_helper"
 
 class Onboarding::ProfileStepTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:two)
+    @user = users(:applicant)
     sign_in_as @user
   end
 
@@ -29,7 +29,7 @@ class Onboarding::ProfileStepTest < ActionDispatch::IntegrationTest
     get onboarding_step_path("profile")
 
     assert_response :success
-    assert_select "input[name='onboarding[first_name]'][value=?]", "Two"
+    assert_select "input[name='onboarding[first_name]'][value=?]", "Applicant"
   end
 
   test "saves an individual profile and updates the account" do

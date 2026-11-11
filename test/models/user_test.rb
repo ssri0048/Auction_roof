@@ -31,7 +31,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "tracks reachable and completed onboarding steps" do
-    user = users(:two)
+    user = users(:applicant)
     assert_equal "profile", user.current_onboarding_step
     assert user.onboarding_step_reachable?("profile")
     assert_not user.onboarding_step_reachable?("finance")

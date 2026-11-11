@@ -3,7 +3,7 @@ require "test_helper"
 class GeographyControllerTest < ActionDispatch::IntegrationTest
   setup do
     @sub_district = sample_sub_district
-    sign_in_as users(:two)
+    sign_in_as users(:applicant)
   end
 
   test "lists districts of a province and sub-districts with postcodes" do

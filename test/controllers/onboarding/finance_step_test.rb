@@ -2,7 +2,7 @@ require "test_helper"
 
 class Onboarding::FinanceStepTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:two)
+    @user = users(:applicant)
     complete_profile_step(@user)
     sign_in_as @user
   end

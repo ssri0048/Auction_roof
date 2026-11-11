@@ -17,6 +17,14 @@ module Authorization
       Current.user&.can?(permission) || false
     end
 
+    # For bidding and deposits: the user must have passed onboarding review.
+    def require_approved_bidder
+      return if Current.user&.approved_bidder?
+
+      redirect_to (Current.user&.onboarding_pending? ? onboarding_path : root_path),
+        alert: "ต้องยืนยันตัวตนให้ผ่านก่อนจึงจะเสนอราคาได้"
+    end
+
     def deny_access
       redirect_to root_path, alert: "คุณไม่มีสิทธิ์เข้าถึงหน้านี้"
     end

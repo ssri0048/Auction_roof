@@ -16,6 +16,10 @@ class Bid < ApplicationRecord
   private
     def bidder_allowed
       errors.add(:base, "คุณไม่มีสิทธิ์เสนอราคา") unless user&.can?(:place_bids)
+      errors.add(:base, "ต้องยืนยันตัวตนให้ผ่านก่อนจึงจะเสนอราคาได้") if user&.can?(:place_bids) && !user.approved_bidder?
+      if user&.bid_limit && amount.present? && amount > user.bid_limit
+        errors.add(:amount, "เกินวงเงินประมูลของคุณ (#{ActiveSupport::NumberHelper.number_to_delimited(user.bid_limit.to_i)} บาท)")
+      end
       errors.add(:base, "ไม่สามารถเสนอราคาสินค้าของตัวเองได้") if user && user == auction.seller
     end
 

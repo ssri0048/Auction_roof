@@ -15,6 +15,7 @@ two:
   last_name: User
   phone: "0822222222"
   role: buyer
+  onboarding_status: approved
   password_digest: <%= password_digest %>
 
 three:
@@ -23,4 +24,14 @@ three:
   last_name: Seller
   phone: "0833333334"
   role: seller
+  onboarding_status: approved
+  password_digest: <%= password_digest %>
+
+# A buyer who hasn't finished onboarding yet.
+applicant:
+  username: applicant
+  first_name: Applicant
+  last_name: User
+  phone: "0855555555"
+  role: buyer
   password_digest: <%= password_digest %>

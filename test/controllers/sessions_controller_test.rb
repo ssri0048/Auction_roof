@@ -19,7 +19,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create sends a bidder with pending onboarding to the wizard" do
-    post session_path, params: { username: "two", password: "password" }
+    post session_path, params: { username: "applicant", password: "password" }
 
     assert_redirected_to onboarding_url
   end

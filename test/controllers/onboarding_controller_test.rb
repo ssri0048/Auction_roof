@@ -2,7 +2,7 @@ require "test_helper"
 
 class OnboardingControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @bidder = users(:two)
+    @bidder = users(:applicant)
     sign_in_as @bidder
   end
 

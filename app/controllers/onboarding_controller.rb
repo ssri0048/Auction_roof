@@ -3,9 +3,9 @@
 # "ถัดไป" saves the step and moves on. "ย้อนกลับ" saves the step if it is valid,
 # then goes back either way, so earlier answers are never lost.
 #
-# A step plugs in by defining private `load_<step>_step` (sets up @record for the
-# form) and `save_<step>_step` (returns true when saved). Steps without them have
-# nothing to save yet.
+# Each step lives in a concern (Onboarding::ProfileStep, ...) defining private
+# `load_<step>_step` (sets up @record for the form) and `save_<step>_step`
+# (returns true when saved), plus a partial in onboarding/steps.
 class OnboardingController < ApplicationController
   # Steps the user may skip without filling anything in.
   SKIPPABLE_STEPS = %w[ interests ].freeze
@@ -43,7 +43,7 @@ class OnboardingController < ApplicationController
       redirect_to root_path, notice: "ส่งข้อมูลเรียบร้อยแล้ว เจ้าหน้าที่จะแจ้งผลภายใน 1–2 วันทำการ"
     elsif saved
       Current.user.complete_onboarding_step!(@step)
-      redirect_to onboarding_step_path(adjacent_step(1))
+      redirect_to onboarding_step_path(Current.user.next_onboarding_step(@step))
     else
       render :edit, status: :unprocessable_entity
     end

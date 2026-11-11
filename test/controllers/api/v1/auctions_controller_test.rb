@@ -25,6 +25,17 @@ class Api::V1::AuctionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "sealed auctions hide price and bids in the API until closed" do
+    auction = auctions(:sealed_first)
+    auction.place_bid(user: users(:two), amount: 4321)
+    get api_v1_auction_path(auction), as: :json
+    body = response.parsed_body
+    assert_equal "first_price_sealed", body["auction_type"]
+    assert_nil body["current_price"]
+    assert_empty body["bids"]
+    assert_no_match "4321", response.body
+  end
+
   test "POST bids: 401 / 403 / 422 / 201" do
     auction = auctions(:live)
     post api_v1_auction_bids_path(auction), params: { bid: { amount: 10000 } }, as: :json

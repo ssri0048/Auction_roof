@@ -1,5 +1,5 @@
 class Notification < ApplicationRecord
-  KINDS = %w[ outbid ending_soon won sold unsold onboarding ].freeze
+  KINDS = %w[ outbid ending_soon won sold unsold approved rejected onboarding ].freeze
 
   belongs_to :user
   belongs_to :auction, optional: true
@@ -15,7 +15,16 @@ class Notification < ApplicationRecord
   class << self
     def outbid(user, auction, bid)
       create!(user: user, auction: auction, kind: "outbid",
-              message: "มีผู้เสนอราคาสูงกว่าคุณใน \"#{auction.title}\" (#{baht(bid.amount)})")
+              message: "มีผู้เสนอราคา#{auction.reverse? ? "ต่ำ" : "สูง"}กว่าคุณใน \"#{auction.title}\" (#{baht(bid.amount)})")
+    end
+
+    def reviewed(auction)
+      if auction.published?
+        create!(user: auction.seller, auction: auction, kind: "approved", message: "\"#{auction.title}\" ได้รับการอนุมัติแล้ว")
+      else
+        create!(user: auction.seller, auction: auction, kind: "rejected",
+                message: "\"#{auction.title}\" ไม่ผ่านการอนุมัติ: #{auction.rejection_reason}")
+      end
     end
 
     def ending_soon(auction)

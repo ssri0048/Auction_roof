@@ -7,6 +7,7 @@ module Api
       # POST /api/v1/user  (register)
       def create
         user = User.new(user_params)
+        user.role = Role.buyer
 
         if user.save
           start_new_session_for user

@@ -11,6 +11,7 @@ module Admin
       @sold = Auction.ended.where.not(winner_id: nil)
       @sold_total = @sold.sum(:current_price)
       @unsold_count = Auction.ended.where(winner_id: nil).count
+      @pending_count = Auction.pending.count
       @top_auctions = Auction.visible.where("bids_count > 0").order(bids_count: :desc).limit(10)
       @recent_closed = Auction.ended.includes(:winner).order(closed_at: :desc).limit(10)
     end

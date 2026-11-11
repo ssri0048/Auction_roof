@@ -1,5 +1,11 @@
 <div id="<%= dom_id(auction, :card_price) %>" class="card-price">
-  <small><%= auction.bids_count.zero? ? "ราคาเริ่มต้น" : "ราคาปัจจุบัน" %></small>
-  <strong><%= baht(auction.price) %></strong>
-  <small><%= auction.bids_count %> ครั้ง</small>
+  <% if auction.price_visible? %>
+    <small><%= auction.bids_count.zero? ? starting_price_label(auction) : (auction.ended? ? "ราคาสุดท้าย" : "ราคาปัจจุบัน") %></small>
+    <strong><%= baht(auction.price) %></strong>
+    <small><%= auction.bids_count %> ครั้ง</small>
+  <% else %>
+    <small>ยื่นซอง</small>
+    <strong><%= auction.bids_count %> ซอง</strong>
+    <small>ขั้นต่ำ <%= baht(auction.starting_price) %></small>
+  <% end %>
 </div>

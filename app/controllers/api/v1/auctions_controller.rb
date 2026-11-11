@@ -18,7 +18,8 @@ module Api
       # GET /api/v1/auctions/:id
       def show
         auction = Auction.visible.find(params[:id])
-        render json: auction.as_json.merge(bids: auction.bids.includes(:user).limit(20))
+        bids = auction.price_visible? ? auction.ranked_bids.includes(:user).limit(20) : []
+        render json: auction.as_json.merge(bids: bids)
       end
     end
   end

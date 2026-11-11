@@ -35,6 +35,28 @@ class Admin::AuctionsControllerTest < ActionDispatch::IntegrationTest
     assert auctions(:upcoming).reload.ended?
   end
 
+  test "approve and reject pending auctions" do
+    sign_in_as users(:one)
+    get admin_auctions_path(status: "pending")
+    assert_select "td a", text: auctions(:pending).title
+    assert_select "button", text: "อนุมัติ"
+
+    post approve_admin_auction_path(auctions(:pending))
+    assert_redirected_to admin_auctions_path(status: "pending")
+    assert auctions(:pending).reload.published?
+
+    auctions(:draft).update_columns(status: "pending")
+    post reject_admin_auction_path(auctions(:draft)), params: { reason: "ข้อมูลไม่ครบ" }
+    assert auctions(:draft).reload.draft?
+    assert_equal "ข้อมูลไม่ครบ", auctions(:draft).rejection_reason
+  end
+
+  test "sellers cannot approve" do
+    sign_in_as users(:three)
+    post approve_admin_auction_path(auctions(:pending))
+    assert auctions(:pending).reload.pending?
+  end
+
   test "cancel" do
     sign_in_as users(:one)
     post cancel_admin_auction_path(auctions(:live))

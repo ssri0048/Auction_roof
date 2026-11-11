@@ -27,8 +27,9 @@
   --stripe: linear-gradient(90deg, var(--pea-purple) 0 72%, var(--pea-gold) 72% 100%);
 }
 
+/* Dark theme: follows the OS unless the visitor picked one with the theme toggle (data-theme on <html>). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #160512;
     --surface: #22091d;
     --surface-alt: #1c0718;
@@ -40,6 +41,18 @@
     --accent: var(--pea-gold-soft);
     --shadow: 0 20px 45px -20px rgb(0 0 0 / 0.7);
   }
+}
+:root[data-theme="dark"] {
+  --bg: #160512;
+  --surface: #22091d;
+  --surface-alt: #1c0718;
+  --text: #f6eaf3;
+  --muted: #bfa8b9;
+  --border: #3f1937;
+  --primary: #c04aa5;
+  --primary-strong: #d368ba;
+  --accent: var(--pea-gold-soft);
+  --shadow: 0 20px 45px -20px rgb(0 0 0 / 0.7);
 }
 
 *,

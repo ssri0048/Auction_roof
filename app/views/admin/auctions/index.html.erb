@@ -4,7 +4,7 @@
   <h1>จัดการรายการประมูล</h1>
   <div class="admin-tools">
     <%= form_with url: admin_auctions_path, method: :get, class: "search", role: "search", data: { controller: "autosubmit" } do |form| %>
-      <%= form.select :status, [ [ "ทุกสถานะ", "" ], [ "ร่าง", "draft" ], [ "เปิดประมูล", "published" ], [ "ปิดแล้ว", "ended" ], [ "ยกเลิก", "cancelled" ] ],
+      <%= form.select :status, [ [ "ทุกสถานะ", "" ], [ "รออนุมัติ", "pending" ], [ "ร่าง", "draft" ], [ "เปิดประมูล", "published" ], [ "ปิดแล้ว", "ended" ], [ "ยกเลิก", "cancelled" ] ],
             { selected: @status }, "aria-label": "สถานะ", data: { action: "change->autosubmit#submit" } %>
       <%= form.search_field :q, value: @query, placeholder: "ค้นหาชื่อรายการ", "aria-label": "ค้นหารายการประมูล" %>
     <% end %>
@@ -15,7 +15,7 @@
 <div class="table-wrap">
   <table class="table">
     <thead>
-      <tr><th>ID</th><th>รายการ</th><th>ผู้ขาย</th><th>สถานะ</th><th>ราคา</th><th>Bid</th><th>ปิด</th><th></th></tr>
+      <tr><th>ID</th><th>รายการ</th><th>ผู้ขาย</th><th>วิธี</th><th>สถานะ</th><th>ราคา</th><th>Bid</th><th>ปิด</th><th></th></tr>
     </thead>
     <tbody>
       <% @auctions.each do |auction| %>
@@ -23,11 +23,22 @@
           <td class="num"><%= auction.id %></td>
           <td><%= link_to auction.title, auction %></td>
           <td><%= auction.seller.full_name %></td>
+          <td><%= auction_type_badge(auction) %></td>
           <td><%= phase_badge(auction) %></td>
-          <td class="num"><%= baht(auction.price) %></td>
+          <td class="num"><%= display_price(auction) %></td>
           <td class="num"><%= auction.bids_count %></td>
           <td><%= thai_datetime(auction.ends_at) %></td>
           <td class="actions">
+            <% if auction.pending? %>
+              <%= button_to "อนุมัติ", approve_admin_auction_path(auction), class: "btn btn-small", form: { style: "display:inline" }, data: { turbo_confirm: "อนุมัติ \"#{auction.title}\" ให้เปิดประมูล?" } %>
+              <details class="reject">
+                <summary class="link-danger">ไม่อนุมัติ</summary>
+                <%= form_with url: reject_admin_auction_path(auction), class: "reject__form" do |f| %>
+                  <%= f.text_field :reason, required: true, maxlength: 255, placeholder: "เหตุผล", "aria-label": "เหตุผลที่ไม่อนุมัติ" %>
+                  <%= f.submit "ยืนยัน", class: "btn btn-small" %>
+                <% end %>
+              </details>
+            <% end %>
             <% unless auction.ended? || auction.cancelled? %>
               <%= link_to "แก้ไข", edit_auction_path(auction) %>
             <% end %>
@@ -41,7 +52,7 @@
         </tr>
       <% end %>
       <% if @auctions.empty? %>
-        <tr><td colspan="8" class="empty">ไม่พบรายการ</td></tr>
+        <tr><td colspan="9" class="empty">ไม่พบรายการ</td></tr>
       <% end %>
     </tbody>
   </table>

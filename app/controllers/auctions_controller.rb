@@ -38,9 +38,10 @@ class AuctionsController < ApplicationController
   def show
     visible = @auction.published? || @auction.ended? || @auction.seller == Current.user || can?(:manage_auctions)
     raise ActiveRecord::RecordNotFound unless visible
-    @bids = @auction.bids.includes(:user).limit(20)
+    @bids = @auction.price_visible? ? @auction.ranked_bids.includes(:user).limit(20) : Bid.none
+    @my_bid = @auction.bids.find_by(user: Current.user) if Current.user && @auction.sealed?
     @chat_messages = @auction.chat_messages.includes(:user).order(:id).last(50)
-    @bid = Bid.new(amount: @auction.minimum_bid)
+    @bid = Bid.new(amount: @auction.reverse? ? @auction.maximum_bid : @auction.minimum_bid)
   end
 
   def new
@@ -50,9 +51,9 @@ class AuctionsController < ApplicationController
 
   def create
     @auction = Current.user.auctions.build(auction_params)
-    @auction.status = params[:publish] ? "published" : "draft"
+    @auction.submit_by(Current.user) if params[:publish]
     if @auction.save
-      redirect_to @auction, notice: @auction.published? ? "เปิดประมูลแล้ว" : "บันทึกร่างแล้ว"
+      redirect_to @auction, notice: saved_notice
     else
       render :new, status: :unprocessable_entity
     end
@@ -65,9 +66,13 @@ class AuctionsController < ApplicationController
     @auction.assign_attributes(auction_params.except(:photos))
     @auction.photos.attach(auction_params[:photos]) if auction_params[:photos].present?
     @auction.photos.where(id: params[:remove_photo_ids]).each(&:purge_later) if params[:remove_photo_ids].present?
-    @auction.status = "published" if params[:publish] && @auction.draft?
+    if params[:publish] && @auction.draft?
+      @auction.submit_by(Current.user)
+    elsif @auction.published? && !can?(:manage_auctions) && @auction.changed?
+      @auction.status = "pending" # seller changed an approved auction: review it again
+    end
     if @auction.save
-      redirect_to @auction, notice: "บันทึกแล้ว"
+      redirect_to @auction, notice: saved_notice
     else
       render :edit, status: :unprocessable_entity
     end
@@ -82,8 +87,16 @@ class AuctionsController < ApplicationController
       redirect_to @auction, alert: "แก้ไขรายการนี้ไม่ได้แล้ว" unless @auction.editable_by?(Current.user)
     end
 
+    def saved_notice
+      case @auction.status
+      when "pending" then "ส่งให้แอดมินอนุมัติแล้ว จะเปิดประมูลได้เมื่อได้รับอนุมัติ"
+      when "published" then "เปิดประมูลแล้ว"
+      else "บันทึกร่างแล้ว"
+      end
+    end
+
     def auction_params
-      params.expect(auction: [ :title, :description, :starting_price, :min_increment, :starts_at, :ends_at, photos: [] ]).tap do |p|
+      params.expect(auction: [ :title, :description, :auction_type, :starting_price, :min_increment, :starts_at, :ends_at, photos: [] ]).tap do |p|
         p[:photos] = Array(p[:photos]).compact_blank if p.key?(:photos)
       end
     end

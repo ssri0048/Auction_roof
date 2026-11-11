@@ -30,6 +30,8 @@ Rails.application.routes.draw do
       member do
         post :close
         post :cancel
+        post :approve
+        post :reject
       end
     end
     get "reports", to: "reports#index"

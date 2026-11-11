@@ -9,16 +9,32 @@
       <span class="timer">เริ่มใน <strong data-controller="countdown" data-countdown-at-value="<%= auction.starts_at.iso8601 %>" data-countdown-refresh-value="true"></strong></span>
     <% end %>
   </div>
+
   <div class="price-box__price">
-    <small><%= auction.bids_count.zero? ? "ราคาเริ่มต้น" : (auction.ended? ? "ราคาสุดท้าย" : "ราคาปัจจุบัน") %></small>
-    <strong><%= baht(auction.price) %></strong>
-  </div>
-  <dl class="price-box__facts">
-    <dt>เสนอราคาแล้ว</dt><dd><%= auction.bids_count %> ครั้ง</dd>
-    <% if auction.published? %>
-      <dt>ราคาขั้นต่ำถัดไป</dt><dd><%= baht(auction.minimum_bid) %></dd>
+    <% if auction.price_visible? %>
+      <small><%= auction.bids_count.zero? ? starting_price_label(auction) : (auction.ended? ? "ราคาสุดท้าย" : "ราคาปัจจุบัน") %></small>
+      <strong><%= baht(auction.price) %></strong>
+    <% else %>
+      <small>ประมูลแบบยื่นซอง ราคาจะเปิดเผยเมื่อปิดประมูล</small>
+      <strong><%= auction.bids_count %> ซอง</strong>
     <% end %>
-    <dt>เพิ่มครั้งละไม่ต่ำกว่า</dt><dd><%= baht(auction.min_increment) %></dd>
+  </div>
+
+  <dl class="price-box__facts">
+    <dt>วิธีประมูล</dt><dd><%= auction_type_badge(auction) %></dd>
+    <% if auction.price_visible? %>
+      <dt>เสนอราคาแล้ว</dt><dd><%= auction.bids_count %> ครั้ง</dd>
+    <% end %>
+    <% if auction.published? %>
+      <% if auction.reverse? %>
+        <dt>ราคาสูงสุดที่เสนอได้</dt><dd><%= baht(auction.maximum_bid) %></dd>
+      <% else %>
+        <dt><%= auction.sealed? ? "ราคาขั้นต่ำ" : "ราคาขั้นต่ำถัดไป" %></dt><dd><%= baht(auction.minimum_bid) %></dd>
+      <% end %>
+    <% end %>
+    <% unless auction.sealed? %>
+      <dt><%= auction.reverse? ? "ลดครั้งละไม่ต่ำกว่า" : "เพิ่มครั้งละไม่ต่ำกว่า" %></dt><dd><%= baht(auction.min_increment) %></dd>
+    <% end %>
     <dt>เริ่ม</dt><dd><%= thai_datetime(auction.starts_at) %></dd>
     <dt>ปิด</dt><dd><%= thai_datetime(auction.ends_at) %></dd>
     <% if auction.ended? %>

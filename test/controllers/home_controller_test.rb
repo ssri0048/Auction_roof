@@ -6,6 +6,12 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1"
   end
+
+  test "has the dark mode toggle and applies the saved theme early" do
+    get root_url
+    assert_select "button.theme-toggle[data-controller=theme]"
+    assert_select "head script", text: /localStorage.getItem\("theme"\)/
+  end
 end
 
 class HomeControllerSignedInTest < ActionDispatch::IntegrationTest

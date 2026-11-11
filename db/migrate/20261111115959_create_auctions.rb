@@ -1,6 +1,6 @@
 class CreateAuctions < ActiveRecord::Migration[8.1]
   def change
-    create_table :auctions do |t|
+    create_table :auctions, if_not_exists: true do |t|
       t.references :seller, null: false, foreign_key: { to_table: :users }
       t.string :title, null: false
       t.text :description
@@ -16,15 +16,15 @@ class CreateAuctions < ActiveRecord::Migration[8.1]
       t.datetime :ending_soon_notified_at
       t.timestamps
     end
-    add_index :auctions, [ :status, :ends_at ]
-    add_index :auctions, :starts_at
+    add_index :auctions, [ :status, :ends_at ], if_not_exists: true
+    add_index :auctions, :starts_at, if_not_exists: true
 
-    create_table :bids do |t|
+    create_table :bids, if_not_exists: true do |t|
       t.references :auction, null: false, foreign_key: true
       t.references :user, null: false, foreign_key: true
       t.decimal :amount, precision: 14, scale: 2, null: false
       t.timestamps
     end
-    add_index :bids, [ :auction_id, :amount ]
+    add_index :bids, [ :auction_id, :amount ], if_not_exists: true
   end
 end

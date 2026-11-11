@@ -36,3 +36,40 @@ expired:
   starts_at: <%= 2.days.ago.to_fs(:db) %>
   ends_at: <%= 1.minute.ago.to_fs(:db) %>
   status: published
+
+pending:
+  seller: three
+  title: เครื่องปั่นไฟ (รออนุมัติ)
+  starting_price: 8000
+  min_increment: 200
+  starts_at: <%= 1.day.from_now.to_fs(:db) %>
+  ends_at: <%= 2.days.from_now.to_fs(:db) %>
+  status: pending
+
+sealed_first:
+  seller: three
+  title: ครุภัณฑ์ (first-price)
+  auction_type: first_price_sealed
+  starting_price: 1000
+  starts_at: <%= 1.hour.ago.to_fs(:db) %>
+  ends_at: <%= 1.day.from_now.to_fs(:db) %>
+  status: published
+
+sealed_second:
+  seller: three
+  title: ครุภัณฑ์ (second-price)
+  auction_type: second_price_sealed
+  starting_price: 1000
+  starts_at: <%= 1.hour.ago.to_fs(:db) %>
+  ends_at: <%= 1.day.from_now.to_fs(:db) %>
+  status: published
+
+reverse:
+  seller: three
+  title: จ้างขนย้ายหม้อแปลง
+  auction_type: reverse
+  starting_price: 50000
+  min_increment: 1000
+  starts_at: <%= 1.hour.ago.to_fs(:db) %>
+  ends_at: <%= 1.day.from_now.to_fs(:db) %>
+  status: published

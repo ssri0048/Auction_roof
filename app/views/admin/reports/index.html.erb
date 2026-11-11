@@ -1,9 +1,10 @@
 <% content_for :admin_title, "รายงาน" %>
-<% status_labels = { "draft" => "ร่าง", "published" => "เปิดประมูล", "ended" => "ปิดแล้ว", "cancelled" => "ยกเลิก" } %>
+<% status_labels = { "pending" => "รออนุมัติ", "draft" => "ร่าง", "published" => "เปิดประมูล", "ended" => "ปิดแล้ว", "cancelled" => "ยกเลิก" } %>
 
 <header class="admin-head"><h1>รายงานการประมูล</h1></header>
 
 <div class="stats">
+  <div class="stat"><small>รออนุมัติ</small><strong><%= link_to @pending_count, admin_auctions_path(status: "pending") %></strong></div>
   <div class="stat"><small>กำลังประมูล</small><strong><%= @live_count %></strong></div>
   <div class="stat"><small>Bid ทั้งหมด</small><strong><%= number_with_delimiter(@bids_count) %></strong><small>วันนี้ <%= @bids_today %></small></div>
   <div class="stat"><small>ผู้เสนอราคา</small><strong><%= number_with_delimiter(@bidders_count) %></strong></div>
@@ -27,7 +28,7 @@
       <thead><tr><th>รายการ</th><th>Bid</th><th>ราคา</th></tr></thead>
       <tbody>
         <% @top_auctions.each do |a| %>
-          <tr><td><%= link_to a.title, a %></td><td class="num"><%= a.bids_count %></td><td class="num"><%= baht(a.price) %></td></tr>
+          <tr><td><%= link_to a.title, a %></td><td class="num"><%= a.bids_count %></td><td class="num"><%= display_price(a) %></td></tr>
         <% end %>
         <% if @top_auctions.empty? %><tr><td colspan="3" class="empty">ยังไม่มีข้อมูล</td></tr><% end %>
       </tbody>

@@ -1,9 +1,9 @@
 module Admin
   class AuctionsController < BaseController
     require_permission :manage_auctions
-    before_action :set_auction, only: %i[ close cancel ]
+    before_action :set_auction, only: %i[ close cancel approve reject ]
 
-    STATUSES = %w[ draft published ended cancelled ].freeze
+    STATUSES = %w[ pending draft published ended cancelled ].freeze
 
     def index
       @query = params[:q].to_s.strip
@@ -14,6 +14,21 @@ module Admin
         @auctions = @auctions.where("title ILIKE ?", "%#{Auction.sanitize_sql_like(@query)}%")
       end
       @auctions = @auctions.limit(200)
+    end
+
+    def approve
+      return redirect_to(admin_auctions_path(status: "pending"), alert: "รายการนี้ไม่ได้รออนุมัติ") unless @auction.pending?
+      if @auction.approve!(Current.user)
+        redirect_to admin_auctions_path(status: "pending"), notice: "อนุมัติ \"#{@auction.title}\" แล้ว"
+      else
+        redirect_to admin_auctions_path(status: "pending"), alert: @auction.errors.full_messages.to_sentence
+      end
+    end
+
+    def reject
+      return redirect_to(admin_auctions_path(status: "pending"), alert: "รายการนี้ไม่ได้รออนุมัติ") unless @auction.pending?
+      @auction.reject!(params[:reason])
+      redirect_to admin_auctions_path(status: "pending"), notice: "ไม่อนุมัติ \"#{@auction.title}\" แล้ว"
     end
 
     # Ends the auction now and picks the winner from the bids so far.

@@ -6,13 +6,20 @@
   --notice-text: #1e6b3a;
 }
 
+/* Dark theme: follows the OS unless the visitor picked one with the theme toggle (data-theme on <html>). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --alert-bg: #3b1d1b;
     --alert-text: #f5b4ae;
     --notice-bg: #183025;
     --notice-text: #a6e0bb;
   }
+}
+:root[data-theme="dark"] {
+  --alert-bg: #3b1d1b;
+  --alert-text: #f5b4ae;
+  --notice-bg: #183025;
+  --notice-text: #a6e0bb;
 }
 
 .page {

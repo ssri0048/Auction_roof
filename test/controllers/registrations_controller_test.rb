@@ -24,6 +24,14 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert user.document.attached?
   end
 
+  test "create assigns the buyer role by default" do
+    buyer = Role.create!(name: Role::BUYER_NAME, permissions: %w[place_bids])
+
+    post registration_path, params: valid_params
+
+    assert_equal buyer, User.find_by!(username: "newbie").role
+  end
+
   test "create with invalid data re-renders the form" do
     params = valid_params
     params[:user][:phone] = "123"

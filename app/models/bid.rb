@@ -2,8 +2,8 @@ class Bid < ApplicationRecord
   belongs_to :auction
   belongs_to :user
 
-  validates :amount, numericality: { less_than: 1_000_000_000_000 }
-  validate :bidder_allowed, :auction_open, :amount_high_enough, on: :create
+  validates :amount, numericality: { greater_than: 0, less_than: 1_000_000_000_000 }
+  validate :bidder_allowed, :auction_open, :amount_within_limit, :one_sealed_bid_each, on: :create
 
   def broadcast_created
     broadcast_prepend_to auction, target: ActionView::RecordIdentifier.dom_id(auction, :bids), partial: "bids/bid", locals: { bid: self }
@@ -27,10 +27,21 @@ class Bid < ApplicationRecord
       errors.add(:base, "รายการนี้ไม่ได้เปิดรับการเสนอราคาในขณะนี้") unless auction.biddable?
     end
 
-    def amount_high_enough
+    def amount_within_limit
       return if amount.blank?
-      if amount < auction.minimum_bid
-        errors.add(:amount, "ต้องไม่ต่ำกว่า #{ActiveSupport::NumberHelper.number_to_delimited(auction.minimum_bid.to_i)} บาท")
+      if auction.reverse?
+        errors.add(:amount, "ต้องไม่สูงกว่า #{baht_text(auction.maximum_bid)} บาท") if amount > auction.maximum_bid
+      elsif amount < auction.minimum_bid
+        errors.add(:amount, "ต้องไม่ต่ำกว่า #{baht_text(auction.minimum_bid)} บาท")
       end
+    end
+
+    def one_sealed_bid_each
+      return unless auction.sealed? && user
+      errors.add(:base, "การประมูลแบบยื่นซองเสนอราคาได้คนละ 1 ครั้งเท่านั้น") if auction.bids.exists?(user: user)
+    end
+
+    def baht_text(amount)
+      ActiveSupport::NumberHelper.number_to_delimited(amount.to_d.round(2).to_s.sub(/\.0+\z/, ""))
     end
 end

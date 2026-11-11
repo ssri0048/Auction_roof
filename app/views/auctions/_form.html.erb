@@ -1,4 +1,4 @@
-<%= form_with model: auction, class: "form panel" do |form| %>
+<%= form_with model: auction, class: "form panel", data: { controller: "auction-type" } do |form| %>
   <% if auction.errors.any? %>
     <div class="flash flash--alert">
       <ul class="error-list"><% auction.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
@@ -13,14 +13,27 @@
     <%= form.label :description, "รายละเอียด" %>
     <%= form.text_area :description, rows: 5 %>
   </div>
+  <fieldset class="type-pick" <%= "disabled" if auction.bids_count.positive? %>>
+    <legend>วิธีประมูล *</legend>
+    <% Auction::TYPES.each_key do |type| %>
+      <label class="type-pick__opt">
+        <%= form.radio_button :auction_type, type, data: { action: "auction-type#change" } %>
+        <span>
+          <strong><%= AuctionsHelper::TYPE_SHORT[type] %></strong>
+          <small><%= AuctionsHelper::TYPE_HELP[type] %></small>
+        </span>
+      </label>
+    <% end %>
+  </fieldset>
+
   <div class="grid">
     <div class="field">
-      <%= form.label :starting_price, "ราคาเริ่มต้น (บาท) *" %>
+      <label for="auction_starting_price" data-auction-type-target="priceLabel"><%= starting_price_label(auction) %> (บาท) *</label>
       <%= form.number_field :starting_price, min: 1, step: "any", required: true, inputmode: "decimal", disabled: auction.bids_count.positive? %>
     </div>
-    <div class="field">
-      <%= form.label :min_increment, "ขั้นต่ำการเพิ่มราคา (บาท) *" %>
-      <%= form.number_field :min_increment, min: 1, step: "any", required: true, inputmode: "decimal" %>
+    <div class="field" data-auction-type-target="increment" <%= "hidden" if auction.sealed? %>>
+      <%= form.label :min_increment, "ขั้นต่ำการเพิ่ม/ลดราคาต่อครั้ง (บาท) *" %>
+      <%= form.number_field :min_increment, min: 1, step: "any", inputmode: "decimal", required: !auction.sealed?, disabled: auction.sealed? %>
     </div>
     <div class="field">
       <%= form.label :starts_at, "เวลาเริ่ม *" %>
@@ -51,9 +64,12 @@
 
   <div class="form-actions">
     <%= link_to "ยกเลิก", auction.persisted? ? auction_path(auction) : auctions_path(tab: "mine"), class: "btn btn-ghost" %>
+    <% if auction.published? && !can?(:manage_auctions) %>
+      <small class="muted form-note">บันทึกการแก้ไขแล้ว รายการจะต้องรอแอดมินอนุมัติใหม่</small>
+    <% end %>
     <% if auction.new_record? || auction.draft? %>
       <%= form.submit "บันทึกร่าง", class: "btn btn-ghost" %>
-      <%= form.submit "เปิดประมูล", name: "publish", class: "btn" %>
+      <%= form.submit (can?(:manage_auctions) ? "เปิดประมูล" : "ส่งให้แอดมินอนุมัติ"), name: "publish", class: "btn" %>
     <% else %>
       <%= form.submit "บันทึก", class: "btn" %>
     <% end %>

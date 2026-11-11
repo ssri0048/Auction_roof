@@ -59,7 +59,7 @@ class AuctionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "seller creates a draft, then publishes it with photos" do
+  test "seller creates a draft, then submits it for approval" do
     sign_in_as @seller
     params = { auction: { title: "ครุภัณฑ์สำนักงาน", starting_price: "1500", min_increment: "100",
                           starts_at: 1.hour.from_now, ends_at: 2.days.from_now,
@@ -74,8 +74,45 @@ class AuctionsControllerTest < ActionDispatch::IntegrationTest
 
     patch auction_path(auction), params: { publish: "1", auction: { title: "ครุภัณฑ์สำนักงาน ชุดใหญ่" } }
     assert_redirected_to auction_path(auction)
-    assert auction.reload.published?
+    assert auction.reload.pending?, "needs admin approval"
     assert_equal "ครุภัณฑ์สำนักงาน ชุดใหญ่", auction.title
+  end
+
+  test "seller picks the auction method; sealed needs no increment" do
+    sign_in_as @seller
+    post auctions_path, params: { publish: "1", auction: { title: "ยื่นซอง", auction_type: "second_price_sealed", starting_price: "500",
+                                                          starts_at: 1.hour.from_now, ends_at: 2.days.from_now } }
+    auction = Auction.last
+    assert auction.second_price_sealed?
+    assert auction.pending?
+    assert_nil auction.min_increment
+  end
+
+  test "admin publishes directly" do
+    sign_in_as @admin
+    post auctions_path, params: { publish: "1", auction: { title: "ของแอดมิน", starting_price: "500", min_increment: "50",
+                                                          starts_at: 1.hour.from_now, ends_at: 2.days.from_now } }
+    assert Auction.last.published?
+  end
+
+  test "editing an approved auction sends it back for review" do
+    sign_in_as @seller
+    patch auction_path(auctions(:upcoming)), params: { auction: { title: "รถกระบะ (แก้ไข)" } }
+    assert auctions(:upcoming).reload.pending?
+  end
+
+  test "sealed auction pages hide the price and bids until closed" do
+    auction = auctions(:sealed_first)
+    auction.place_bid(user: @buyer, amount: 7777)
+    get auction_path(auction)
+    assert_response :success
+    assert_no_match "7,777", response.body
+    assert_select ".price-box__price strong", text: "1 ซอง"
+
+    sign_in_as @buyer
+    get auction_path(auction)
+    assert_select ".bid-box", text: /คุณยื่นซองเสนอราคาแล้ว/
+    assert_select ".bid-form", count: 0
   end
 
   test "invalid auction re-renders the form" do

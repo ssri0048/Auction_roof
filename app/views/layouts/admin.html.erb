@@ -18,13 +18,17 @@
         <%= link_to "บทบาทและสิทธิ์", admin_roles_path, class: ("is-active" if controller_name == "roles") %>
       <% end %>
       <% if can?(:manage_auctions) %>
-        <%= link_to "รายการประมูล", admin_auctions_path, class: ("is-active" if controller_name == "auctions") %>
+        <%= link_to admin_auctions_path, class: ("is-active" if controller_name == "auctions") do %>
+          รายการประมูล
+          <% if (pending = Auction.pending.count).positive? %><span class="nav-count" title="รออนุมัติ"><%= pending %></span><% end %>
+        <% end %>
       <% end %>
       <% if can?(:view_reports) %>
         <%= link_to "รายงาน", admin_reports_path, class: ("is-active" if controller_name == "reports") %>
       <% end %>
       <%= link_to "กลับหน้าหลัก", root_path %>
     </nav>
+    <%= render "layouts/theme_toggle" %>
     <div class="admin-me">
       <span><%= Current.user.full_name %></span>
       <small><%= Current.user.role&.name || "ไม่มีบทบาท" %></small>

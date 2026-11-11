@@ -10,7 +10,7 @@
   <% @notifications.each do |n| %>
     <li class="notif <%= "is-unread" unless n.read? %>">
       <%= button_to read_notification_path(n), method: :patch, class: "notif__btn" do %>
-        <span class="notif__icon" aria-hidden="true"><%= { "outbid" => "⚠️", "ending_soon" => "⏰", "won" => "🏆", "sold" => "💰", "unsold" => "📦", "onboarding" => "🪪" }[n.kind] %></span>
+        <span class="notif__icon" aria-hidden="true"><%= { "outbid" => "⚠️", "ending_soon" => "⏰", "won" => "🏆", "sold" => "💰", "unsold" => "📦", "approved" => "✅", "rejected" => "❌", "onboarding" => "🪪" }[n.kind] %></span>
         <span class="notif__msg"><%= n.message %></span>
         <time class="muted"><%= thai_datetime(n.created_at) %></time>
       <% end %>

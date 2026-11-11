@@ -6,6 +6,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Auction Roof">
     <meta name="mobile-web-app-capable" content="yes">
+    <%# Apply the saved theme before CSS loads so the page doesn't flash the wrong colours. %>
+    <script>
+      try { const t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t } catch (e) {}
+    </script>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 

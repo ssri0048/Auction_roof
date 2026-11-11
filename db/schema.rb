@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_11_130009) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_11_150009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -64,7 +64,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_130009) do
     t.string "title", null: false
     t.text "description"
     t.decimal "starting_price", precision: 14, scale: 2, null: false
-    t.decimal "min_increment", precision: 14, scale: 2, null: false
+    t.decimal "min_increment", precision: 14, scale: 2
     t.decimal "current_price", precision: 14, scale: 2
     t.integer "bids_count", default: 0, null: false
     t.datetime "starts_at", null: false
@@ -75,6 +75,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_130009) do
     t.datetime "ending_soon_notified_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "auction_type", default: "english", null: false
+    t.bigint "approved_by_id"
+    t.datetime "approved_at"
+    t.string "rejection_reason"
+    t.index ["approved_by_id"], name: "index_auctions_on_approved_by_id"
     t.index ["seller_id"], name: "index_auctions_on_seller_id"
     t.index ["starts_at"], name: "index_auctions_on_starts_at"
     t.index ["status", "ends_at"], name: "index_auctions_on_status_and_ends_at"
@@ -290,6 +295,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_130009) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "addresses", "sub_districts"
   add_foreign_key "addresses", "users"
+  add_foreign_key "auctions", "users", column: "approved_by_id"
   add_foreign_key "auctions", "users", column: "seller_id"
   add_foreign_key "auctions", "users", column: "winner_id"
   add_foreign_key "bank_accounts", "users"

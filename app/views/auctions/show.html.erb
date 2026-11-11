@@ -27,7 +27,13 @@
 
     <header class="room__head">
       <h1><%= @auction.title %></h1>
-      <p class="muted">ผู้ขาย: <%= @auction.seller.full_name %></p>
+      <p class="muted">ผู้ขาย: <%= @auction.seller.full_name %> · <%= auction_type_badge(@auction) %></p>
+      <p class="type-help"><%= AuctionsHelper::TYPE_HELP[@auction.auction_type] %></p>
+      <% if @auction.pending? %>
+        <div class="flash flash--notice">รายการนี้กำลังรอแอดมินอนุมัติ จะเปิดให้เสนอราคาได้หลังได้รับอนุมัติ</div>
+      <% elsif @auction.draft? && @auction.rejection_reason.present? %>
+        <div class="flash flash--alert">ไม่ผ่านการอนุมัติ: <%= @auction.rejection_reason %> แก้ไขแล้วส่งใหม่ได้</div>
+      <% end %>
       <% if @auction.editable_by?(Current.user) %>
         <div class="room__actions">
           <%= link_to "แก้ไข", edit_auction_path(@auction), class: "btn btn-small btn-ghost" %>
@@ -56,12 +62,23 @@
             ต้องยืนยันตัวตนให้ผ่านก่อนจึงจะเสนอราคาได้
             <% if Current.user.onboarding_pending? %><%= link_to "กรอกข้อมูล", onboarding_path %><% end %>
           </p>
+        <% elsif @my_bid %>
+          <p>คุณยื่นซองเสนอราคาแล้ว <strong><%= baht(@my_bid.amount) %></strong></p>
+          <p class="muted">ผลจะประกาศเมื่อปิดประมูล</p>
         <% else %>
           <%= form_with model: [ @auction, @bid ], class: "bid-form" do |form| %>
-            <%= form.label :amount, "ราคาที่เสนอ (บาท)" %>
+            <% if @auction.reverse? %>
+              <%= form.label :amount, "ราคาที่เสนอ (บาท) ไม่เกิน #{baht(@auction.maximum_bid)}" %>
+            <% elsif @auction.sealed? %>
+              <%= form.label :amount, "ราคาในซอง (บาท) ไม่ต่ำกว่า #{baht(@auction.minimum_bid)}" %>
+            <% else %>
+              <%= form.label :amount, "ราคาที่เสนอ (บาท)" %>
+            <% end %>
             <div class="bid-form__row">
-              <%= form.number_field :amount, min: @auction.minimum_bid.to_i, step: "any", required: true, inputmode: "decimal" %>
-              <%= form.submit "เสนอราคา", class: "btn", data: { turbo_confirm: "ยืนยันการเสนอราคา?" } %>
+              <%= form.number_field :amount, step: "any", required: true, inputmode: "decimal",
+                    min: (@auction.reverse? ? 1 : @auction.minimum_bid.to_i), max: (@auction.maximum_bid.to_i if @auction.reverse?) %>
+              <%= form.submit (@auction.sealed? ? "ยื่นซอง" : "เสนอราคา"), class: "btn",
+                    data: { turbo_confirm: @auction.sealed? ? "ยื่นซองได้ครั้งเดียว แก้ไขภายหลังไม่ได้ ยืนยัน?" : "ยืนยันการเสนอราคา?" } %>
             </div>
           <% end %>
         <% end %>
@@ -73,7 +90,11 @@
       <ol id="<%= dom_id(@auction, :bids) %>" class="bid-list-live">
         <%= render partial: "bids/bid", collection: @bids, as: :bid %>
       </ol>
-      <% if @bids.empty? %><p class="muted bid-empty">ยังไม่มีผู้เสนอราคา</p><% end %>
+      <% if !@auction.price_visible? %>
+        <p class="muted">ประมูลแบบยื่นซอง รายการราคาจะเปิดเผยเมื่อปิดประมูล</p>
+      <% elsif @bids.empty? %>
+        <p class="muted bid-empty">ยังไม่มีผู้เสนอราคา</p>
+      <% end %>
     </section>
 
     <section class="panel chat" data-controller="chat">

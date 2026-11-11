@@ -3,15 +3,35 @@ class User < ApplicationRecord
   OTP_TTL = 10.minutes
   OTP_MAX_ATTEMPTS = 5
   DOCUMENT_TYPES = %w[image/jpeg image/png image/webp application/pdf].freeze
+  # Onboarding steps in order; `onboarding_step` counts how many are complete (0 = none).
+  ONBOARDING_STEPS = %w[profile finance address documents bank interests consents review].freeze
+
+  enum :bidder_type, { individual: "individual", juristic: "juristic" }, validate: { allow_nil: true }
+  enum :onboarding_status, {
+    in_progress: "in_progress",
+    submitted: "submitted",
+    needs_changes: "needs_changes",
+    approved: "approved",
+    rejected: "rejected",
+    suspended: "suspended"
+  }, prefix: :onboarding, validate: true
 
   has_secure_password
   has_many :sessions, dependent: :destroy
   belongs_to :role, optional: true
+  belongs_to :approved_by, class_name: "User", optional: true
   has_one_attached :document
   has_many :auctions, foreign_key: :seller_id, dependent: :restrict_with_error, inverse_of: :seller
   has_many :bids, dependent: :restrict_with_error
   has_many :chat_messages, dependent: :destroy
   has_many :notifications, dependent: :destroy
+
+  has_one :profile, class_name: "UserProfile", dependent: :destroy
+  has_many :addresses, dependent: :destroy
+  has_many :bank_accounts, dependent: :destroy
+  has_one :interest, class_name: "UserInterest", dependent: :destroy
+  has_many :consents, dependent: :destroy
+  has_many :onboarding_reviews, dependent: :destroy
 
   normalizes :username, with: ->(u) { u.strip.downcase }
   normalizes :phone, with: ->(p) { p.gsub(/\D/, "") }
@@ -25,6 +45,7 @@ class User < ApplicationRecord
     format: { with: /\A0\d{9}\z/, message: "ต้องเป็นเบอร์ 10 หลัก ขึ้นต้นด้วย 0" }
   validates :email_address, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_nil: true
   validates :password, length: { minimum: 8 }, allow_nil: true
+  validates :onboarding_step, numericality: { only_integer: true, in: 0..ONBOARDING_STEPS.length }
   validate :document_type_and_size
 
   # Creates a new OTP, stores only its hash, and returns the plain code so it can be sent.
@@ -62,7 +83,9 @@ class User < ApplicationRecord
     {
       id: id, username: username, first_name: first_name, last_name: last_name,
       phone: phone, email_address: email_address, has_document: document.attached?,
-      role: role&.name, permissions: role&.permissions || [], created_at: created_at
+      role: role&.name, permissions: role&.permissions || [],
+      bidder_type: bidder_type, onboarding_status: onboarding_status, onboarding_step: onboarding_step,
+      created_at: created_at
     }
   end
 

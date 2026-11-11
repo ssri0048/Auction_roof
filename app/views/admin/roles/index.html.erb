@@ -1,0 +1,41 @@
+<% content_for :admin_title, "บทบาทและสิทธิ์" %>
+
+<div data-controller="dialog">
+  <header class="admin-head">
+    <h1>บทบาทและสิทธิ์</h1>
+    <div class="admin-tools">
+      <button type="button" class="btn btn-small" data-action="dialog#open">+ เพิ่มบทบาท</button>
+    </div>
+  </header>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>บทบาท</th><th>สิทธิ์</th><th>ผู้ใช้งาน</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% @roles.each do |role| %>
+          <tr>
+            <td><strong><%= role.name %></strong></td>
+            <td>
+              <% if role.permissions.any? %>
+                <%= safe_join(role.permissions.map { |p| tag.span(Role::PERMISSIONS[p], class: "pill pill--soft") }, " ") %>
+              <% else %><span class="sub">ไม่มีสิทธิ์</span><% end %>
+            </td>
+            <td class="num"><%= role.users_count %></td>
+            <td class="actions">
+              <%= link_to "แก้ไข", edit_admin_role_path(role) %>
+              <%= button_to "ลบ", admin_role_path(role), method: :delete, class: "link-danger", form_class: "nav-form",
+                    data: { turbo_confirm: "ลบบทบาท #{role.name}?" } %>
+            </td>
+          </tr>
+        <% end %>
+        <% if @roles.empty? %>
+          <tr><td colspan="4" class="empty">ยังไม่มีบทบาท</td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <%= render "admin/roles/dialog", role: @role %>
+</div>

@@ -1,0 +1,27 @@
+<% content_for :full_page, true %>
+<% content_for :title, "#{content_for(:admin_title)} | ระบบจัดการ Auction Roof" if content_for?(:admin_title) %>
+<% content_for :body_html do %>
+<div class="admin">
+  <aside class="admin-side">
+    <a href="<%= root_path %>" class="brand admin-brand"><span class="brand-mark">AR</span> Auction Roof</a>
+    <nav class="admin-nav" aria-label="เมนูผู้ดูแลระบบ">
+      <% if can?(:manage_users) %>
+        <%= link_to "ผู้ใช้งาน", admin_users_path, class: ("is-active" if controller_name == "users") %>
+      <% end %>
+      <% if can?(:manage_roles) %>
+        <%= link_to "บทบาทและสิทธิ์", admin_roles_path, class: ("is-active" if controller_name == "roles") %>
+      <% end %>
+      <%= link_to "กลับหน้าหลัก", root_path %>
+    </nav>
+    <div class="admin-me">
+      <span><%= Current.user.full_name %></span>
+      <small><%= Current.user.role&.name || "ไม่มีบทบาท" %></small>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <%= render "layouts/flash" %>
+    <%= yield %>
+  </main>
+</div>
+<% end %>
+<%= render template: "layouts/application" %>

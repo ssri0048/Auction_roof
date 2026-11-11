@@ -6,6 +6,7 @@ class User < ApplicationRecord
 
   has_secure_password
   has_many :sessions, dependent: :destroy
+  belongs_to :role, optional: true
   has_one_attached :document
 
   normalizes :username, with: ->(u) { u.strip.downcase }
@@ -45,11 +46,19 @@ class User < ApplicationRecord
     update_columns(otp_digest: nil, otp_expires_at: nil, otp_attempts: 0)
   end
 
+  def can?(permission)
+    role.present? && role.allows?(permission)
+  end
+
+  def full_name
+    "#{first_name} #{last_name}"
+  end
+
   def as_json(*)
     {
       id: id, username: username, first_name: first_name, last_name: last_name,
       phone: phone, email_address: email_address, has_document: document.attached?,
-      created_at: created_at
+      role: role&.name, permissions: role&.permissions || [], created_at: created_at
     }
   end
 

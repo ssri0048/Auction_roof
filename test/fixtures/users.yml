@@ -6,6 +6,7 @@ one:
   last_name: User
   phone: "0811111111"
   email_address: one@example.com
+  role: admin
   password_digest: <%= password_digest %>
 
 two:
@@ -13,4 +14,5 @@ two:
   first_name: Two
   last_name: User
   phone: "0822222222"
+  role: buyer
   password_digest: <%= password_digest %>

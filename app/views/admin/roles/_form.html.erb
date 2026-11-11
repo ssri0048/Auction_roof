@@ -1,0 +1,16 @@
+<%= form_with model: [ :admin, role ], class: "form" do |form| %>
+  <div class="field">
+    <%= form.label :name, "ชื่อบทบาท" %>
+    <%= form.text_field :name, required: true, maxlength: 50, placeholder: "เช่น ผู้ดูแลระบบ, ผู้ขาย" %>
+  </div>
+  <fieldset class="perm-grid">
+    <legend>สิทธิ์ (Permission)</legend>
+    <%= form.collection_check_boxes :permissions, Role::PERMISSIONS, :first, :last do |b| %>
+      <label class="perm"><%= b.check_box %> <span><%= b.text %></span></label>
+    <% end %>
+  </fieldset>
+  <div class="form-actions">
+    <%= yield %>
+    <%= form.submit role.persisted? ? "บันทึก" : "เพิ่มบทบาท", class: "btn" %>
+  </div>
+<% end %>

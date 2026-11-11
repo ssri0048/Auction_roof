@@ -13,6 +13,7 @@
         <a href="#how">วิธีใช้งาน</a>
         <% if (user = Current.user) %>
           <span class="nav-user">สวัสดี <%= user.first_name %></span>
+          <% if can?(:manage_users) %><%= link_to "จัดการผู้ใช้", admin_users_path %><% end %>
           <%= button_to "ออกจากระบบ", session_path, method: :delete, class: "btn btn-small btn-ghost", form_class: "nav-form" %>
         <% else %>
           <%= link_to "เข้าสู่ระบบ", new_session_path %>

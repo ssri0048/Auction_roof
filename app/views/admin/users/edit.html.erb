@@ -1,0 +1,44 @@
+<% content_for :admin_title, "แก้ไข #{@user.username}" %>
+
+<header class="admin-head">
+  <h1>แก้ไขผู้ใช้งาน @<%= @user.username %></h1>
+</header>
+
+<section class="panel">
+  <% if @user.errors.any? %>
+    <div class="flash flash--alert">
+      <ul><% @user.errors.full_messages.each do |message| %><li><%= message %></li><% end %></ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: [ :admin, @user ], class: "form" do |form| %>
+    <div class="grid">
+      <div class="field">
+        <%= form.label :first_name, "ชื่อ" %>
+        <%= form.text_field :first_name, required: true %>
+      </div>
+      <div class="field">
+        <%= form.label :last_name, "นามสกุล" %>
+        <%= form.text_field :last_name, required: true %>
+      </div>
+      <div class="field">
+        <%= form.label :phone, "เบอร์โทรศัพท์" %>
+        <%= form.telephone_field :phone, required: true, inputmode: "numeric" %>
+      </div>
+      <div class="field">
+        <%= form.label :email_address, "อีเมล" %>
+        <%= form.email_field :email_address %>
+      </div>
+      <% unless @user == Current.user %>
+        <div class="field">
+          <%= form.label :role_id, "บทบาท" %>
+          <%= form.collection_select :role_id, @roles, :id, :name, include_blank: "— ไม่มีบทบาท —" %>
+        </div>
+      <% end %>
+    </div>
+    <div class="form-actions">
+      <%= link_to "ยกเลิก", admin_user_path(@user), class: "btn btn-ghost" %>
+      <%= form.submit "บันทึก", class: "btn" %>
+    </div>
+  <% end %>
+</section>

@@ -1,0 +1,54 @@
+<% content_for :admin_title, "ผู้ใช้งาน" %>
+
+<div data-controller="dialog">
+  <header class="admin-head">
+    <h1>User / Role</h1>
+    <div class="admin-tools">
+      <%= form_with url: admin_users_path, method: :get, class: "search", role: "search" do |form| %>
+        <%= form.search_field :q, value: @query, placeholder: "ค้นหา username, ชื่อ, เบอร์โทร", "aria-label": "ค้นหาผู้ใช้งาน" %>
+      <% end %>
+      <% if can?(:manage_roles) %>
+        <button type="button" class="btn btn-small" data-action="dialog#open">+ เพิ่มบทบาท</button>
+      <% end %>
+    </div>
+  </header>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>ID</th><th>ผู้ใช้งาน</th><th>เบอร์โทร</th><th>บทบาท</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td class="num"><%= user.id %></td>
+            <td>
+              <strong><%= user.full_name %></strong>
+              <small class="sub">@<%= user.username %></small>
+            </td>
+            <td><%= user.phone %></td>
+            <td>
+              <%= form_with model: [ :admin, user ], data: { controller: "autosubmit" } do |form| %>
+                <%= hidden_field_tag :from, "list", id: nil %>
+                <%= hidden_field_tag :q, @query, id: nil if @query.present? %>
+                <%= form.collection_select :role_id, @roles, :id, :name, { include_blank: "— ไม่มีบทบาท —" },
+                      disabled: user == Current.user, "aria-label": "บทบาทของ #{user.username}",
+                      title: ("ไม่สามารถเปลี่ยนบทบาทของตัวเองได้" if user == Current.user),
+                      data: { action: "change->autosubmit#submit" } %>
+                <noscript><%= form.submit "บันทึก", class: "btn btn-small" %></noscript>
+              <% end %>
+            </td>
+            <td class="actions"><%= link_to "ดูรายละเอียด", admin_user_path(user) %></td>
+          </tr>
+        <% end %>
+        <% if @users.empty? %>
+          <tr><td colspan="5" class="empty">ไม่พบผู้ใช้งาน</td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if can?(:manage_roles) %>
+    <%= render "admin/roles/dialog", role: @role %>
+  <% end %>
+</div>

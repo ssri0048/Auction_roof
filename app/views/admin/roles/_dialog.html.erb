@@ -1,0 +1,6 @@
+<dialog class="modal" data-dialog-target="dialog" aria-labelledby="add-role-title">
+  <h2 id="add-role-title" class="modal__title">เพิ่มบทบาท</h2>
+  <%= render "admin/roles/form", role: role do %>
+    <button type="button" class="btn btn-ghost" data-action="dialog#close">ยกเลิก</button>
+  <% end %>
+</dialog>

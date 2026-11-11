@@ -1,0 +1,42 @@
+<% content_for :admin_title, @user.username %>
+
+<header class="admin-head">
+  <h1>รายละเอียดผู้ใช้งาน</h1>
+  <div class="admin-tools">
+    <%= link_to "← ย้อนกลับ", admin_users_path, class: "btn btn-small btn-ghost" %>
+    <%= link_to "แก้ไข", edit_admin_user_path(@user), class: "btn btn-small" %>
+  </div>
+</header>
+
+<section class="panel detail">
+  <dl class="detail__list">
+    <dt>ID</dt><dd><%= @user.id %></dd>
+    <dt>Username</dt><dd>@<%= @user.username %></dd>
+    <dt>ชื่อ-นามสกุล</dt><dd><%= @user.full_name %></dd>
+    <dt>เบอร์โทรศัพท์</dt><dd><%= @user.phone %></dd>
+    <dt>อีเมล</dt><dd><%= @user.email_address.presence || "—" %></dd>
+    <dt>บทบาท</dt><dd><span class="pill"><%= @user.role&.name || "ไม่มีบทบาท" %></span></dd>
+    <dt>สิทธิ์</dt>
+    <dd>
+      <% perms = @user.role&.permissions.to_a %>
+      <% if perms.any? %>
+        <%= safe_join(perms.map { |p| tag.span(Role::PERMISSIONS[p], class: "pill pill--soft") }, " ") %>
+      <% else %>—<% end %>
+    </dd>
+    <dt>สมัครเมื่อ</dt><dd><%= @user.created_at.strftime("%d/%m/%Y %H:%M") %></dd>
+  </dl>
+
+  <figure class="detail__doc">
+    <% if @user.document.attached? && @user.document.image? %>
+      <%= link_to rails_blob_path(@user.document, disposition: "inline"), target: "_blank", rel: "noopener" do %>
+        <%= image_tag rails_blob_path(@user.document, disposition: "inline"), alt: "เอกสารของ #{@user.username}" %>
+      <% end %>
+      <figcaption>เอกสารยืนยันตัวตน</figcaption>
+    <% elsif @user.document.attached? %>
+      <div class="doc-placeholder">PDF</div>
+      <figcaption><%= link_to "เปิดเอกสาร (PDF)", rails_blob_path(@user.document, disposition: "inline"), target: "_blank", rel: "noopener" %></figcaption>
+    <% else %>
+      <div class="doc-placeholder">ไม่มีเอกสาร</div>
+    <% end %>
+  </figure>
+</section>

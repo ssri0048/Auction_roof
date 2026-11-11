@@ -24,7 +24,9 @@
   </head>
 
   <body class="<%= "auth-bg" unless content_for?(:full_page) %>">
-    <% if content_for?(:full_page) %>
+    <% if content_for?(:body_html) %>
+      <%= yield :body_html %>
+    <% elsif content_for?(:full_page) %>
       <%= yield %>
     <% else %>
       <main class="page">

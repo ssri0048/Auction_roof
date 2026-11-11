@@ -1,0 +1,16 @@
+<% content_for :admin_title, "แก้ไขบทบาท #{@role.name_was}" %>
+
+<header class="admin-head">
+  <h1>แก้ไขบทบาท <%= @role.name_was %></h1>
+</header>
+
+<section class="panel narrow">
+  <% if @role.errors.any? %>
+    <div class="flash flash--alert">
+      <ul><% @role.errors.full_messages.each do |message| %><li><%= message %></li><% end %></ul>
+    </div>
+  <% end %>
+  <%= render "form", role: @role do %>
+    <%= link_to "ยกเลิก", admin_roles_path, class: "btn btn-ghost" %>
+  <% end %>
+</section>

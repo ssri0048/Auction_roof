@@ -9,6 +9,10 @@
       <div class="container landing-flash"><%= render "layouts/flash" %></div>
     <% end %>
 
+    <% if Current.user&.onboarding_pending? %>
+      <div class="container landing-flash"><%= render "onboarding/banner" %></div>
+    <% end %>
+
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-copy">

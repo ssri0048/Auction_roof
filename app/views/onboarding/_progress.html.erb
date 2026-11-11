@@ -1,0 +1,18 @@
+<% total = User::ONBOARDING_STEPS.length %>
+<div class="onboarding-progress">
+  <p class="onboarding-progress__count">ขั้นตอน <%= @step_index + 1 %> จาก <%= total %></p>
+  <div class="onboarding-progress__bar" role="progressbar" aria-valuemin="1" aria-valuemax="<%= total %>" aria-valuenow="<%= @step_index + 1 %>">
+    <span style="width: <%= ((@step_index + 1) * 100.0 / total).round %>%"></span>
+  </div>
+  <ol class="onboarding-progress__steps">
+    <% User::ONBOARDING_STEPS.each_with_index do |step, index| %>
+      <li class="<%= "is-current" if step == @step %> <%= "is-done" if index < Current.user.onboarding_step %>">
+        <% if Current.user.onboarding_step_reachable?(step) && step != @step %>
+          <%= link_to onboarding_step_label(step), onboarding_step_path(step) %>
+        <% else %>
+          <span><%= onboarding_step_label(step) %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+</div>

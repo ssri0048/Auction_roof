@@ -5,6 +5,8 @@ class User < ApplicationRecord
   DOCUMENT_TYPES = %w[image/jpeg image/png image/webp application/pdf].freeze
   # Onboarding steps in order; `onboarding_step` counts how many are complete (0 = none).
   ONBOARDING_STEPS = %w[profile finance address documents bank interests consents review].freeze
+  # Roles with any of these are staff and don't need bidder onboarding.
+  STAFF_PERMISSIONS = %w[manage_users manage_roles manage_auctions view_reports].freeze
 
   enum :bidder_type, { individual: "individual", juristic: "juristic" }, validate: { allow_nil: true }
   enum :onboarding_status, {
@@ -73,6 +75,33 @@ class User < ApplicationRecord
 
   def can?(permission)
     role.present? && role.allows?(permission)
+  end
+
+  # Bidders (no role yet, or a role that can bid) go through onboarding; staff don't.
+  def onboarding_required?
+    return false if STAFF_PERMISSIONS.any? { can?(it) }
+
+    role.nil? || can?(:place_bids)
+  end
+
+  # True while the user still has onboarding steps to fill in.
+  def onboarding_pending?
+    onboarding_required? && (onboarding_in_progress? || onboarding_needs_changes?)
+  end
+
+  def current_onboarding_step
+    ONBOARDING_STEPS[onboarding_step] || ONBOARDING_STEPS.last
+  end
+
+  # Completed steps and the first incomplete one can be opened; later ones can't.
+  def onboarding_step_reachable?(step)
+    index = ONBOARDING_STEPS.index(step)
+    index.present? && index <= onboarding_step
+  end
+
+  def complete_onboarding_step!(step)
+    done = ONBOARDING_STEPS.index(step) + 1
+    update!(onboarding_step: done) if done > onboarding_step
   end
 
   def full_name

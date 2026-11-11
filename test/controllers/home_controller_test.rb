@@ -23,9 +23,9 @@ class HomeControllerSignedInTest < ActionDispatch::IntegrationTest
   end
 
   test "shows flash messages on the landing page" do
-    post registration_path, params: { user: { username: "flashy", first_name: "F", last_name: "L", phone: "0844444444",
-                                              password: "password123", password_confirmation: "password123" } }
+    sign_in_as(users(:one))
+    get onboarding_path # staff have no onboarding, so this redirects home with a notice
     follow_redirect!
-    assert_select ".landing-flash .flash--notice", "สมัครสมาชิกสำเร็จ"
+    assert_select ".landing-flash .flash--notice", "ไม่มีข้อมูลที่ต้องกรอกเพิ่ม"
   end
 end

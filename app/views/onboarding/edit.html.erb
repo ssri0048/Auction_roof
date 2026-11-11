@@ -1,0 +1,29 @@
+<% content_for :title, "#{onboarding_step_label(@step)} | Auction Roof" %>
+
+<div class="card card--wide onboarding">
+  <%= render "onboarding/progress" %>
+  <h1 class="card__title"><%= onboarding_step_label(@step) %></h1>
+
+  <% if @record&.errors&.any? %>
+    <div class="flash flash--alert">
+      <ul><% @record.errors.full_messages.each do |message| %><li><%= message %></li><% end %></ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @record || false, scope: :onboarding, url: onboarding_step_path(@step), method: :patch, class: "form" do |form| %>
+    <% if lookup_context.exists?(@step, [ "onboarding/steps" ], true) %>
+      <%= render "onboarding/steps/#{@step}", form: form %>
+    <% else %>
+      <p class="onboarding__pending">ขั้นตอนนี้ยังไม่เปิดให้กรอก กด "ถัดไป" เพื่อไปต่อ</p>
+    <% end %>
+
+    <div class="onboarding__actions">
+      <% if @step_index > 0 %>
+        <%= form.button "ย้อนกลับ", name: "back", value: "1", class: "btn btn-ghost", formnovalidate: true %>
+      <% end %>
+      <% unless @step == User::ONBOARDING_STEPS.last %>
+        <%= form.button "ถัดไป", class: "btn" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

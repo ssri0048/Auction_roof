@@ -17,7 +17,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
       post registration_path, params: valid_params
     end
 
-    assert_redirected_to root_path
+    assert_redirected_to onboarding_path
     assert cookies[:session_id]
     user = User.find_by!(username: "newbie")
     assert_equal "0812345678", user.phone

@@ -1,0 +1,11 @@
+<% if Current.user&.onboarding_pending? %>
+  <div class="onboarding-banner">
+    <% if Current.user.onboarding_needs_changes? %>
+      <span>เจ้าหน้าที่ขอให้แก้ไขข้อมูลบางส่วนก่อนเริ่มประมูล</span>
+      <%= link_to "แก้ไขข้อมูล", onboarding_path, class: "btn btn-small" %>
+    <% else %>
+      <span>กรอกข้อมูลให้ครบเพื่อเริ่มประมูล</span>
+      <%= link_to "กรอกข้อมูล", onboarding_path, class: "btn btn-small" %>
+    <% end %>
+  </div>
+<% end %>

@@ -11,7 +11,7 @@ class RegistrationsController < ApplicationController
 
     if @user.save
       start_new_session_for @user
-      redirect_to root_path, notice: "สมัครสมาชิกสำเร็จ"
+      redirect_to (@user.onboarding_pending? ? onboarding_path : root_path), notice: "สมัครสมาชิกสำเร็จ"
     else
       render :new, status: :unprocessable_entity
     end

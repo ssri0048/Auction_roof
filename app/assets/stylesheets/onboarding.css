@@ -1,0 +1,63 @@
+/* Onboarding wizard (progress, actions) and the "complete your profile" banner */
+
+.onboarding-progress { margin-bottom: 24px; }
+.onboarding-progress__count { margin: 0 0 8px; font-size: 0.9rem; font-weight: 600; color: var(--muted); }
+
+.onboarding-progress__bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-alt);
+  overflow: hidden;
+}
+.onboarding-progress__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  transition: width 0.3s;
+}
+
+.onboarding-progress__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.onboarding-progress__steps a { color: var(--primary); }
+.onboarding-progress__steps .is-current { color: var(--text); font-weight: 600; }
+.onboarding-progress__steps .is-done span::before,
+.onboarding-progress__steps .is-done a::before { content: "✓ "; }
+
+.onboarding__pending { margin: 0; color: var(--muted); }
+
+.onboarding__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+.onboarding__actions .btn { min-width: 120px; min-height: 44px; }
+.onboarding__actions .btn:only-child { margin-left: auto; }
+
+.onboarding-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-alt);
+  color: var(--text);
+  font-weight: 500;
+}
+
+@media (max-width: 560px) {
+  .onboarding-banner { flex-direction: column; align-items: stretch; text-align: center; }
+  .onboarding__actions .btn { flex: 1; }
+}

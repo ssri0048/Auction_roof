@@ -3,6 +3,12 @@ Rails.application.routes.draw do
   resource :registration, only: %i[ new create ]
   resource :password_reset, only: %i[ new create edit update ]
 
+  resource :onboarding, only: :show, controller: "onboarding"
+  scope "onboarding", controller: "onboarding", constraints: { step: Regexp.union(User::ONBOARDING_STEPS) } do
+    get ":step", action: :edit, as: :onboarding_step
+    patch ":step", action: :update
+  end
+
   resources :auctions, except: :destroy do
     get :calendar, on: :collection
     resources :bids, only: :create

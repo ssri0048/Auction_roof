@@ -18,6 +18,12 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert cookies[:session_id]
   end
 
+  test "create sends a bidder with pending onboarding to the wizard" do
+    post session_path, params: { username: "two", password: "password" }
+
+    assert_redirected_to onboarding_url
+  end
+
   test "create with invalid credentials" do
     post session_path, params: { username: @user.username, password: "wrong" }
 

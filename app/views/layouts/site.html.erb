@@ -4,6 +4,7 @@
   <%= render "layouts/site_header" %>
   <main class="container site-main">
     <%= render "layouts/flash" %>
+    <%= render "onboarding/banner" unless controller_name == "onboarding" %>
     <%= yield %>
   </main>
 </div>

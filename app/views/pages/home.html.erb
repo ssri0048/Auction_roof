@@ -1,0 +1,128 @@
+<% content_for :title, "Auction Roof — ประมูลออนไลน์ที่ง่ายและโปร่งใส" %>
+<% content_for :head do %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<% end %>
+
+<div class="landing">
+  <header class="site-header">
+    <div class="container nav">
+      <a href="<%= root_path %>" class="brand">
+        <span class="brand-mark">AR</span>
+        Auction Roof
+      </a>
+      <nav class="nav-links">
+        <a href="#features">จุดเด่น</a>
+        <a href="#how">วิธีใช้งาน</a>
+        <a href="#start" class="btn btn-small">เริ่มต้นใช้งาน</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">แพลตฟอร์มประมูลออนไลน์</span>
+          <h1>ประมูลง่าย <span class="accent">โปร่งใส</span> ทุกการเสนอราคา</h1>
+          <p class="lead">
+            ลงสินค้า เปิดประมูล และติดตามราคาแบบเรียลไทม์ได้ในที่เดียว
+            ทั้งผู้ขายและผู้ซื้อเห็นทุกความเคลื่อนไหวอย่างชัดเจน
+          </p>
+          <div class="hero-actions">
+            <a href="#start" class="btn">เริ่มประมูลเลย</a>
+            <a href="#how" class="btn btn-ghost">ดูวิธีใช้งาน</a>
+          </div>
+        </div>
+
+        <div class="auction-card" aria-hidden="true">
+          <div class="auction-card-top">
+            <span class="live-dot"></span> กำลังประมูล
+            <span class="timer">02:14:36</span>
+          </div>
+          <div class="auction-thumb"></div>
+          <h3>สินค้าตัวอย่าง</h3>
+          <div class="auction-price">
+            <div>
+              <small>ราคาปัจจุบัน</small>
+              <strong>฿12,500</strong>
+            </div>
+            <div>
+              <small>ผู้เสนอราคา</small>
+              <strong>18 คน</strong>
+            </div>
+          </div>
+          <div class="bid-list">
+            <div><span>ผู้ใช้ A</span><span>฿12,500</span></div>
+            <div><span>ผู้ใช้ B</span><span>฿12,200</span></div>
+            <div><span>ผู้ใช้ C</span><span>฿11,800</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="container">
+        <h2 class="section-title">ทำไมต้อง Auction Roof</h2>
+        <div class="feature-grid">
+          <article class="feature">
+            <div class="feature-icon">⚡</div>
+            <h3>อัปเดตเรียลไทม์</h3>
+            <p>เห็นราคาล่าสุดทันทีที่มีคนเสนอราคา ไม่ต้องรีเฟรชหน้า</p>
+          </article>
+          <article class="feature">
+            <div class="feature-icon">🔒</div>
+            <h3>โปร่งใสและปลอดภัย</h3>
+            <p>ประวัติการเสนอราคาทุกครั้งถูกบันทึกและตรวจสอบย้อนหลังได้</p>
+          </article>
+          <article class="feature">
+            <div class="feature-icon">🔔</div>
+            <h3>แจ้งเตือนทันใจ</h3>
+            <p>รู้ทันทีเมื่อมีคนเสนอราคาสูงกว่า หรือการประมูลใกล้ปิด</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="section section-alt">
+      <div class="container">
+        <h2 class="section-title">เริ่มต้นได้ใน 3 ขั้นตอน</h2>
+        <ol class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <h3>สมัครสมาชิก</h3>
+            <p>สร้างบัญชีฟรีภายในไม่กี่นาที</p>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <h3>ลงสินค้าหรือเลือกรายการ</h3>
+            <p>ตั้งราคาเริ่มต้นและเวลาปิดประมูลได้เอง</p>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <h3>เสนอราคาและชนะ</h3>
+            <p>ติดตามการประมูลและยืนยันผลเมื่อปิดประมูล</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="start" class="section">
+      <div class="container">
+        <div class="cta">
+          <h2>พร้อมเริ่มประมูลแล้วหรือยัง?</h2>
+          <p>เปิดประมูลรายการแรกของคุณได้เร็ว ๆ นี้</p>
+          <a href="#" class="btn btn-light">สมัครสมาชิก</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© <%= Date.current.year %> Auction Roof</span>
+      <span>Group 5</span>
+    </div>
+  </footer>
+</div>

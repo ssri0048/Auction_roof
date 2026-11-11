@@ -1,0 +1,26 @@
+<p class="step-intro">ใช้สำหรับคืนเงินหลักประกันเมื่อไม่ชนะการประมูล ชื่อบัญชีต้องตรงกับชื่อ<%= Current.user.juristic? ? "นิติบุคคล" : "ในโปรไฟล์" %></p>
+
+<% if @record.persisted? && !@record.name_matches_profile? %>
+  <div class="flash flash--alert">ชื่อบัญชีไม่ตรงกับชื่อในโปรไฟล์ เจ้าหน้าที่จะตรวจสอบเพิ่มเติม</div>
+<% end %>
+
+<div class="grid">
+  <div class="field">
+    <%= form.label :bank_code, "ธนาคาร" %>
+    <%= form.select :bank_code, OnboardingOptions::BANKS.invert, include_blank: "เลือกธนาคาร" %>
+  </div>
+  <div class="field">
+    <%= form.label :branch, "สาขา (ไม่บังคับ)" %>
+    <%= form.text_field :branch %>
+  </div>
+  <div class="field">
+    <%= form.label :account_name, "ชื่อบัญชี" %>
+    <%= form.text_field :account_name %>
+  </div>
+  <div class="field">
+    <%= form.label :account_number, "เลขที่บัญชี" %>
+    <%= form.text_field :account_number, inputmode: "numeric", maxlength: 20, autocomplete: "off" %>
+  </div>
+</div>
+
+<%= render "onboarding/document_field", form: form, name: :book_bank, label: "รูปหน้าสมุดบัญชี" %>

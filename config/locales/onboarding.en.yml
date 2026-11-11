@@ -53,8 +53,17 @@ en:
         house_no: "บ้านเลขที่"
         sub_district: "ตำบล / แขวง"
         postcode: "รหัสไปรษณีย์"
+      bank_account:
+        bank_code: "ธนาคาร"
+        account_name: "ชื่อบัญชี"
+        account_number: "เลขที่บัญชี"
+        branch: "สาขา"
+        book_bank: "รูปหน้าสมุดบัญชี"
     errors:
       models:
+        bank_account:
+          blank: "ต้องระบุ"
+          inclusion: "กรุณาเลือก"
         address:
           blank: "ต้องระบุ"
           required: "ต้องเลือก"

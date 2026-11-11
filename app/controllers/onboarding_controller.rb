@@ -11,6 +11,7 @@ class OnboardingController < ApplicationController
   include Onboarding::FinanceStep
   include Onboarding::AddressStep
   include Onboarding::DocumentsStep
+  include Onboarding::BankStep
 
   layout "site"
 

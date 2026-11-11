@@ -1,0 +1,47 @@
+<%# One address block. Locals: form (the step form), kind, address %>
+<%= form.fields_for kind, address do |a| %>
+  <div class="grid" data-controller="address-select"
+       data-address-select-districts-url-value="<%= geography_districts_path %>"
+       data-address-select-sub-districts-url-value="<%= geography_sub_districts_path %>">
+    <div class="field">
+      <%= a.label :house_no, "บ้านเลขที่" %>
+      <%= a.text_field :house_no, autocomplete: "address-line1" %>
+    </div>
+    <div class="field">
+      <%= a.label :moo, "หมู่ (ไม่บังคับ)" %>
+      <%= a.text_field :moo, inputmode: "numeric" %>
+    </div>
+    <div class="field">
+      <%= a.label :building, "หมู่บ้าน / อาคาร (ไม่บังคับ)" %>
+      <%= a.text_field :building %>
+    </div>
+    <div class="field">
+      <%= a.label :soi, "ซอย (ไม่บังคับ)" %>
+      <%= a.text_field :soi %>
+    </div>
+    <div class="field">
+      <%= a.label :road, "ถนน (ไม่บังคับ)" %>
+      <%= a.text_field :road %>
+    </div>
+    <div class="field">
+      <%= a.label :selected_province_id, "จังหวัด" %>
+      <%= a.collection_select :selected_province_id, Province.order(:name_th), :id, :name_th, { include_blank: "เลือกจังหวัด" },
+            data: { address_select_target: "province", action: "address-select#loadDistricts" } %>
+    </div>
+    <div class="field">
+      <%= a.label :selected_district_id, "อำเภอ / เขต" %>
+      <%= a.collection_select :selected_district_id, District.where(province_id: address.selected_province_id).order(:name_th), :id, :name_th,
+            { include_blank: "เลือกอำเภอ" }, data: { address_select_target: "district", action: "address-select#loadSubDistricts" } %>
+    </div>
+    <div class="field">
+      <%= a.label :sub_district_id, "ตำบล / แขวง" %>
+      <%= a.select :sub_district_id,
+            SubDistrict.where(district_id: address.selected_district_id).order(:name_th).map { [ it.name_th, it.id, { data: { postcode: it.postcode } } ] },
+            { include_blank: "เลือกตำบล" }, data: { address_select_target: "subDistrict", action: "address-select#fillPostcode" } %>
+    </div>
+    <div class="field">
+      <label>รหัสไปรษณีย์</label>
+      <input type="text" readonly value="<%= address.sub_district&.postcode %>" data-address-select-target="postcode" aria-label="รหัสไปรษณีย์">
+    </div>
+  </div>
+<% end %>

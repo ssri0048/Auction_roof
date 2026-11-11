@@ -9,6 +9,7 @@
 class OnboardingController < ApplicationController
   include Onboarding::ProfileStep
   include Onboarding::FinanceStep
+  include Onboarding::AddressStep
 
   layout "site"
 

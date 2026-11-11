@@ -3,6 +3,9 @@ Rails.application.routes.draw do
   resource :registration, only: %i[ new create ]
   resource :password_reset, only: %i[ new create edit update ]
 
+  get "geography/districts", to: "geography#districts", as: :geography_districts
+  get "geography/sub_districts", to: "geography#sub_districts", as: :geography_sub_districts
+
   resource :onboarding, only: :show, controller: "onboarding"
   scope "onboarding", controller: "onboarding", constraints: { step: Regexp.union(User::ONBOARDING_STEPS) } do
     get ":step", action: :edit, as: :onboarding_step

@@ -1,0 +1,20 @@
+<h2 class="form-section"><%= Current.user.juristic? ? "ที่ตั้งสำนักงานใหญ่" : "ที่อยู่ตามบัตรประชาชน" %></h2>
+<%= render "onboarding/address_fields", form: form, kind: :registered, address: @record.registered %>
+
+<h2 class="form-section">ที่อยู่ติดต่อ / จัดส่ง</h2>
+<label class="check">
+  <%= form.check_box :contact_same, { checked: @record.contact_same }, "1", "0" %>
+  เหมือนที่อยู่ตามทะเบียน
+</label>
+<div class="when-not-same" data-same-as="contact">
+  <%= render "onboarding/address_fields", form: form, kind: :contact, address: @record.contact %>
+</div>
+
+<h2 class="form-section">ที่อยู่ออกใบกำกับภาษี</h2>
+<label class="check">
+  <%= form.check_box :tax_invoice_same, { checked: @record.tax_invoice_same }, "1", "0" %>
+  เหมือนที่อยู่ตามทะเบียน
+</label>
+<div class="when-not-same" data-same-as="tax_invoice">
+  <%= render "onboarding/address_fields", form: form, kind: :tax_invoice, address: @record.tax_invoice %>
+</div>

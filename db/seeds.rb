@@ -11,3 +11,6 @@
 Role.find_or_create_by!(name: "ผู้ดูแลระบบ") { it.permissions = Role::PERMISSIONS.keys }
 Role.find_or_create_by!(name: "ผู้ขาย") { it.permissions = %w[ create_auctions place_bids ] }
 Role.find_or_create_by!(name: "ผู้ซื้อ") { it.permissions = %w[ place_bids ] }
+
+# Provinces, districts and sub-districts for the onboarding address step.
+ThaiGeography.import!

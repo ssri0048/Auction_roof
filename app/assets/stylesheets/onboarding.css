@@ -122,3 +122,7 @@
 .onboarding:has(input[name="onboarding[has_auction_experience]"][value="true"]:checked) .when-experienced { display: grid; }
 .onboarding:has(select[name="onboarding[occupation]"] option[value="student"]:checked) .when-has-employer,
 .onboarding:has(select[name="onboarding[occupation]"] option[value="retired"]:checked) .when-has-employer { display: none; }
+
+/* Step 3: hide the extra address while "same as registered" is ticked */
+.onboarding:has(input[name="onboarding[contact_same]"][type="checkbox"]:checked) [data-same-as="contact"],
+.onboarding:has(input[name="onboarding[tax_invoice_same]"][type="checkbox"]:checked) [data-same-as="tax_invoice"] { display: none; }

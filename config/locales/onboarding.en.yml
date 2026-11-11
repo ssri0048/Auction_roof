@@ -40,8 +40,15 @@ en:
         budget_range: "งบประมาณต่อการประมูล"
         is_pep: "สถานภาพทางการเมือง (PEP)"
         auction_experience_note: "ประสบการณ์การประมูล"
+      address:
+        house_no: "บ้านเลขที่"
+        sub_district: "ตำบล / แขวง"
+        postcode: "รหัสไปรษณีย์"
     errors:
       models:
+        address:
+          blank: "ต้องระบุ"
+          required: "ต้องเลือก"
         user_profile:
           blank: "ต้องระบุ"
           inclusion: "กรุณาเลือก"

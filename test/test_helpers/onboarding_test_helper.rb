@@ -23,6 +23,16 @@ module OnboardingTestHelper
     advance_onboarding(user, "finance")
   end
 
+  def sample_sub_district
+    ThaiGeography.import!(file_fixture("thai_geography_sample.json"))
+    SubDistrict.find_by!(code: "100101")
+  end
+
+  def complete_address_step(user)
+    user.addresses.create!(kind: :registered, house_no: "1", sub_district: sample_sub_district)
+    advance_onboarding(user, "address")
+  end
+
   def advance_onboarding(user, step)
     user.complete_onboarding_step!(step)
   end
